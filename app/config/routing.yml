@@ -1,0 +1,4 @@
+personal_account:
+    resource: "@PersonalAccountBundle/Controller"
+    prefix:   /
+    type:     annotation

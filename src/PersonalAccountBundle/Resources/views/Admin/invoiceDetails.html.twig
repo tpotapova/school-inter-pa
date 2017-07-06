@@ -1,0 +1,33 @@
+{% extends 'PersonalAccountBundle:Admin:base.html.twig' %}
+{% block body %}
+<h3>Счет "{{ invoice_title }}" за период с {{ from_date }} по {{ to_date }}</h3>
+<table class="table table-striped table-bordered">
+    <thead class="thead-inverse">
+    <tr>
+        <th>Ученик</th>
+        <th>Рассчетный период (начало)</th>
+        <th>Рассчетный период (конец)</th>
+        <th>Сумма к оплате (руб.)</th>
+        <th>Оплачено</th>
+    </tr>
+    </thead>
+    <tbody>
+    {{ form_start(form) }}
+    {% for value in student_invoices %}
+
+        <tr>
+            <td>{{ value['s_surname'] }} {{ value['s_name'] }}</td>
+            <td>{{ from_date }}</td>
+            <td>{{ to_date }}</td>
+            <td>{{ value['s_i_total'] }}</td>
+            <td class="paid-view">{{ value['s_i_payed'] ? 'да': 'нет' }}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+    {{ form_widget(form.delete, { 'label': 'Удалить'}) }}
+    {{ form_end(form) }}
+    <hr>
+
+    <a href="/invoices"> << Назад к списку счетов</a>
+{% endblock %}

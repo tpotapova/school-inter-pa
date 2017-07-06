@@ -1,0 +1,15 @@
+{% extends 'PersonalAccountBundle:Admin:base.html.twig' %}
+{% block body %}
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4">
+
+                {{ form_start(form) }}
+                {{ form_widget(form.name) }}
+                {{ form_widget(form.save) }}
+                {{ form_end(form) }}
+            </div>
+
+        </div>
+    </div>
+{% endblock %}

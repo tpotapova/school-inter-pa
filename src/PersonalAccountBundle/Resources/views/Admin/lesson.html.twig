@@ -1,0 +1,49 @@
+{% extends 'PersonalAccountBundle:Admin:base.html.twig' %}
+{% block body %}
+    <div class="container">
+        <div class="row">
+            <div class="col-md-8 col-md-offset-2">
+                <div class="panel panel-default">
+                    {% if form.delete is defined %}
+                        <div class="panel-heading">Редактировать занятие</div>
+                    {% else %}
+                        <div class="panel-heading">Добавить занятие</div>
+                    {% endif %}
+                    <div class="panel-body">
+                        {{ form_start(form) }}
+                        <div class="form_group">
+                            <div class="col-md-8 col-md-offset-2">
+                                {{ form_row(form.teacher, {'attr': {'class': 'form-control'}}) }}
+                            </div>
+                        </div>
+                        <div class="form_group">
+                            <div class="col-md-8 col-md-offset-2">
+                                {{ form_row(form.lesson, {'attr': {'class': 'form-control'}}) }}
+                            </div>
+
+                        </div>
+                        <div class="form_group">
+                            <div class="col-md-8 col-md-offset-2">
+                                {{ form_row(form.title, {'attr': {'class': 'form-control'}}) }}
+                            </div>
+                        </div>
+                        <div class="form_group">
+                            <div class="col-md-8 col-md-offset-2">
+                                {{ form_row(form.rate, {'attr': {'class': 'form-control'}}) }}
+                            </div>
+                        </div>
+                        <div class="form_group">
+                            <div class="col-md-8 col-md-offset-2">
+                                {{ form_widget(form.save, { 'label': 'Сохранить' }) }}
+                                {% if form.delete is defined  %}
+                                {{ form_widget(form.delete, { 'label': 'Удалить' }) }}
+                                    {% endif %}
+                            </div>
+                        </div>
+                        {{ form_end(form) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

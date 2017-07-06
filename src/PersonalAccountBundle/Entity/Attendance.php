@@ -1,0 +1,220 @@
+<?php
+
+namespace PersonalAccountBundle\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\Mapping\UniqueConstraint;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+
+/**
+ * @ORM\Entity
+ * @ORM\Table(name="attendance", uniqueConstraints={@UniqueConstraint(name="attendance_unique", columns={"student","teacher_lesson", "start_time","date"})})
+ */
+
+class Attendance
+{
+    /**
+     * @ORM\Column(type="integer")
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
+    protected $id;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="TeacherLesson")
+     * @ORM\JoinColumn(name="teacher_lesson", referencedColumnName="id")
+     */
+    protected  $teacher_lesson;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="Student")
+     * @ORM\JoinColumn(name="student", referencedColumnName="id")
+     */
+    protected  $student;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="Group")
+     * @ORM\JoinColumn(name="group_id", referencedColumnName="id")
+     */
+    protected $group;
+    /**
+     * @ORM\Column(type="date")
+     */
+    protected  $date;
+
+    /**
+     * @ORM\Column(type="time")
+     */
+    protected $start_time;
+
+    /**
+     * @ORM\Column(type="time")
+     */
+    protected $end_time;
+
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    protected $presence;
+
+    /**
+     * @ORM\Column(type="boolean",nullable=true)
+     */
+    protected $excuse;
+
+    /**
+     * @ORM\Column(type="boolean",nullable=true)
+     */
+    protected $edited;
+
+    /**
+     * @return mixed
+     */
+    public function getEdited()
+    {
+        return $this->edited;
+    }
+
+    /**
+     * @param mixed $edited
+     */
+    public function setEdited($edited)
+    {
+        $this->edited = $edited;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getTeacherLesson()
+    {
+        return $this->teacher_lesson;
+    }
+
+    /**
+     * @param mixed $teacher_lesson
+     */
+    public function setTeacherLesson($teacher_lesson)
+    {
+        $this->teacher_lesson = $teacher_lesson;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getStudent()
+    {
+        return $this->student;
+    }
+
+    /**
+     * @param mixed $student
+     */
+    public function setStudent(Student $student)
+    {
+        $this->student = $student;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getDate()
+    {
+        return $this->date;
+    }
+
+    /**
+     * @param mixed $date
+     */
+    public function setDate($date)
+    {
+        $this->date = $date;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getStartTime()
+    {
+        return $this->start_time;
+    }
+
+    /**
+     * @param mixed $start_time
+     */
+    public function setStartTime($start_time)
+    {
+        $this->start_time = $start_time;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getPresence()
+    {
+        return $this->presence;
+    }
+
+    /**
+     * @param mixed $presence
+     */
+    public function setPresence($presence)
+    {
+        $this->presence = $presence;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getExcuse()
+    {
+        return $this->excuse;
+    }
+
+    /**
+     * @param mixed $excuse
+     */
+    public function setExcuse($excuse)
+    {
+        $this->excuse = $excuse;
+    }
+    /**
+     * @return mixed
+     */
+    public function getGroup()
+    {
+        return $this->group;
+    }
+
+    /**
+     * @param mixed $group
+     */
+    public function setGroup($group)
+    {
+        $this->group = $group;
+    }
+    /**
+     * @return mixed
+     */
+    public function getEndTime()
+    {
+        return $this->end_time;
+    }
+
+    /**
+     * @param mixed $end_time
+     */
+    public function setEndTime($end_time)
+    {
+        $this->end_time = $end_time;
+    }
+
+}

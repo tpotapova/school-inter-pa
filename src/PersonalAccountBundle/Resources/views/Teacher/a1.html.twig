@@ -1,0 +1,21 @@
+{% extends 'PersonalAccountBundle:Admin:base.html.twig' %}
+{% block body %}
+    <div id="calendar"></div>
+{% endblock %}
+{% block javascripts %}
+    <script>
+        var defaults = {
+            'showModalOnLoad': false,
+            'events_load_url': '{{ events_load_url }}'
+        };
+        if (defaults.showModalOnLoad) {
+            showModal();
+        }
+        function showModal() {
+            $('#pageopen').modal({
+                show: true
+            });
+        };
+    </script>
+    <script src ="{{ asset('js/attendance.js') }}"></script>
+{% endblock %}

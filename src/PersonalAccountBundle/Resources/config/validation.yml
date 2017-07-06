@@ -1,0 +1,5 @@
+\PersonalAccountBundle\Entity\Attendance:
+    constraints:
+        - Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity:
+            fields: [student, teacher_lesson, start_time, date]
+            message: "Посещение уже добавлено в журнал"

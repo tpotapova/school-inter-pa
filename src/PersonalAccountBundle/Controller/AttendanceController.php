@@ -1,0 +1,127 @@
+<?php
+
+namespace PersonalAccountBundle\Controller;
+
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\DBAL\Query\QueryBuilder;
+use PersonalAccountBundle\Entity\Attendance;
+use PersonalAccountBundle\Entity\AttendanceCollector;
+use PersonalAccountBundle\Entity\Student;
+use PersonalAccountBundle\Entity\TeacherLesson;
+use PersonalAccountBundle\Form\PresenceCollectorType;
+use PersonalAccountBundle\Form\AttendanceType;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\RouterInterface;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Symfony\Component\HttpFoundation\JsonResponse;
+
+
+class AttendanceController extends Controller
+{
+    /**
+     * @Route ("{teacher_id}/{group_id}/attendance/", name="attendance")
+     */
+    public function showScheduleAction($group_id, $teacher_id, Request $request)
+    {
+        $show_modal = 'false';
+        $router = $this->get('router');
+        $events_load_url = $router->generate('json', ['teacher_id' => $teacher_id,'group_id' => $group_id]);
+
+        return $this->render('PersonalAccountBundle:Teacher:a1.html.twig', ['show_modal' => $show_modal,
+            //'form' => $form->createView(),
+            'group_id' => $group_id,
+            'teacher_id' => $teacher_id,
+            'events_load_url' => $events_load_url,
+            ]);
+    }
+
+
+    protected function getEventData($group_id, $teacher_id)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $scheduleQueryBuilder = $em
+            ->getRepository('PersonalAccountBundle:Journal')
+            ->createQueryBuilder('e')
+            ->join('e.teacher_lesson', 't')
+            ->where('t.teacher = :teacher_id')
+            ->andwhere('e.group = :group_id');
+            //->groupby('e.group','t.teacher','e.start_time');
+        $scheduleQueryBuilder
+            ->setParameter('teacher_id', $teacher_id)
+            ->setParameter('group_id', $group_id);
+        $result = $scheduleQueryBuilder
+            ->getQuery()
+            ->getResult();
+        $event_data = [];
+        foreach($result as $value){
+            $d = $value->getDate();
+            $start = $value->getStartTime();
+            $end = $value->getEndTime();
+            $event_data[] = [
+                "title"=>$value->getTeacherLesson()->getTitle(),
+                "start" => $d->format('Y-m-d') .' ' .$start->format('H:i:s'),
+                "end" => $d->format('Y-m-d') .' ' .$end->format('H:i:s'),
+                "allDay"=>false,
+                "id"=>$value->getId(),
+                "title_id"=>$value->getTeacherLesson()->getId(),
+                "teacher_lesson"=>$value->getTeacherLesson(),
+                "group_id" => $group_id,
+                "color" => ($value->getEdited()) ? 'green' : 'blue',
+                "url" => $this->get('router')->generate('edit_attendance', ['group_id' => $group_id,
+                    'teacher_id' => $teacher_id, 'journal_id' => $value->getId()]),
+            ];
+        }
+        return $event_data;
+    }
+
+    /**
+     * @Route("{teacher_id}/{group_id}/json_events/", name="json")
+     */
+    public function showJsonAction($group_id,$teacher_id, Request $request)
+    {
+        $group_id = intval($group_id,10);
+        $teacher_id = intval($teacher_id,10);
+        $events = $this->getEventData($group_id,$teacher_id);
+        $response = new JsonResponse($events);
+        return $response;
+    }
+    /**
+     * @Route("{teacher_id}/{group_id}/{journal_id}/attendance", name="edit_attendance")
+     */
+    public function editAttendanceAction($group_id, $teacher_id, $journal_id, Request $request)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $show_modal = 'true';
+        $attendances = $em->getRepository('PersonalAccountBundle\Entity\Presence')->findBy(array('journal_id' => $journal_id));
+        $collector = new AttendanceCollector();
+        $collector->setAttendanceCollection($attendances);
+        $form = $this->createForm(PresenceCollectorType::class, $collector);
+        $form->handleRequest($request);
+        $modal_title = "Редактировать событие";
+        $redirect_url = $this->get('router')->generate('attendance', ['group_id' => $group_id,'teacher_id'=>$teacher_id]);
+        $events_load_url = $this->get('router')->generate('json', ['group_id' => $group_id, 'teacher_id'=>$teacher_id]);
+        if ($form->get('save')->isClicked()) {
+                if ($form->isValid()) {
+                    $journal = $em->getRepository('PersonalAccountBundle\Entity\Journal')->find($journal_id);
+                    $journal->setEdited(true);
+                    foreach ($attendances as $attendance) {
+                        $attendance->setJournalId($journal);
+
+                        $em->persist($attendance);
+                    }
+                    $em->flush();
+                }
+
+            return $this->redirect($redirect_url);
+
+        }
+
+
+
+        return $this->render('PersonalAccountBundle:Teacher:attendance.html.twig', ['form' => $form->createView(),
+            'show_modal' => $show_modal,'events_load_url' => $events_load_url,'modal_title' => $modal_title]);
+    }
+
+}

@@ -1,0 +1,8 @@
+{% extends 'PersonalAccountBundle:Admin:base.html.twig' %}
+{% block body %}
+    <div id="calendar"></div>
+{% endblock %}
+{% block javascripts %}
+<script src ="{{ asset('js/show_schedule.js') }}"></script>
+<script>var events_load_url = '{{ events_load_url }}'</script>
+{% endblock %}

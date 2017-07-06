@@ -1,0 +1,46 @@
+{% extends 'PersonalAccountBundle:Admin:base.html.twig' %}
+{% block body %}
+    <h2>Все счета</h2>
+    <table id="all_invoices" class="table table-striped table-bordered">
+        <thead class="thead-inverse">
+        <tr>
+            <th>Предмет</th>
+            <th>Начальная дата (год-месяц-день)</th>
+            <th>Конечная дата (год-месяц-день)</th>
+            <th>Сумма к оплате (руб.)</th>
+            <th>Оплачено</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for value in invoices %}
+        <tr>
+            <td><a href="/invoices/{{ value["i_id"]}}">{{ value["l_title"]}}</a></td>
+            <td>{{ value["i_from_date"] ? value["i_from_date"]|date('Y-m-d')}}</td>
+            <td>{{ value["i_to_date"]|date('Y-m-d')}}</td>
+            <td>{{ value["i_total"]}}</td>
+            <td>{{ value["i_payed"] ? 'да': 'нет'}}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <hr>
+    <a href="/invoice_params" class="btn btn-primary">Сформировать новый счет</a>
+{% endblock %}
+{% block javascripts %}
+    <script src ="{{ asset('js/jquery.dataTables.min.js') }}"></script>
+    <script>
+        $(document).ready(function() {
+            $('#all_invoices').DataTable({
+                ordering: true,
+                columnDefs : [
+                    { type : 'date', targets : [1,2],orderSequence: ["desc", "asc"], }
+                ],
+            });
+        });
+    </script>
+{% endblock %}
+{% block stylesheets %}
+    {{ parent() }}
+
+    <link href="{{ asset('/css/jquery.dataTables.min.css') }}" rel="stylesheet">
+{% endblock %}

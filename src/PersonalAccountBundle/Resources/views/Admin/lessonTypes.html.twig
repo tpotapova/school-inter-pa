@@ -1,0 +1,17 @@
+{% extends 'PersonalAccountBundle:Admin:base.html.twig' %}
+{% block body %}
+    <div class="container">
+        <div class="alert alert-info">Внимание! При удалении категории все связанные с ней занятия удаляются автоматически.</div>
+        <div class="row">
+        <div class="col-md-4">
+
+            {{ form_start(form) }}
+            {{ form_widget(form.lesson) }}
+            {{ form_widget(form.add,{ 'label': 'Добавить'}) }}
+            {{ form_widget(form.delete, { 'label': 'Удалить'}) }}
+            {{ form_end(form) }}
+        </div>
+
+        </div>
+    </div>
+{% endblock %}

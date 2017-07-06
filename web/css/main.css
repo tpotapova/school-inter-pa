@@ -1,0 +1,21 @@
+.nav-link:hover, .nav-link:focus, .nav-link:active,.dropdown-toggle:hover, .dropdown-toggle:focus,.dropdown-toggle:active{
+    background-color: #eee;
+    cursor: pointer;
+    text-decoration: none;
+}
+.nav-link, .dropdown-toggle {
+    padding: 10px;
+}
+.nav-item {
+    list-style-type: none;
+    line-height: 1.5;
+    padding: 10px;
+}
+
+.sidebar .nav {
+    margin-bottom: 20px;
+}
+.main-content{
+    border: 1px solid #eee;
+    padding: 15px;
+}

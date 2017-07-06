@@ -1,0 +1,46 @@
+{% extends 'PersonalAccountBundle:Admin:base.html.twig' %}
+{% block body %}
+    <div class="modal fade" tabindex="-1" role="dialog" id="pageopen">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">{{ modal_title }}</h4>
+                </div>
+                <div class="modal-body">
+                    {{ form_start(form) }}
+                        {{ form_row(form.teacher_lesson, {'attr': {'class': 'form-control'}}) }}
+                        {{ form_row(form.start_date, {'attr': {'class': 'form-control'}}) }}
+                        {{ form_row(form.dow, {'attr': {'class':'form-control'}}) }}
+                        {{ form_row(form.start_time, {'attr': {'class': 'form-control'}}) }}
+                        {{ form_row(form.end_time, {'attr': {'class': 'form-control'}}) }}
+                        {{ form_row(form.description, {'attr': {'class': 'form-control'}}) }}
+                </div>
+                <div class="modal-footer">
+                    {{ form_widget(form.save, { 'label': 'Сохранить' }) }}
+                    {{ form_widget(form.delete, { 'label': 'Удалить' }) }}
+                    {{ form_end(form) }}
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Закрыть</button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+    <div id="calendar"></div>
+{% endblock %}
+{% block javascripts %}
+    <script>
+        var defaults = {
+            'showModalOnLoad': {{ show_modal }},
+            'events_load_url': '{{ events_load_url }}',
+        };
+        if (defaults.showModalOnLoad) {
+            showModal();
+        }
+        function showModal() {
+            $('#pageopen').modal({
+                show: true
+            });
+        };
+    </script>
+    <script src ="{{ asset('js/schedule.js') }}"></script>
+{% endblock %}
