@@ -30,6 +30,7 @@ $(document).ready(function() {
             });
         },*/
         eventClick: function(event) {
+            $('#teacher_lesson_caption').text(event.title);
             if (event.url) {
                 window.open(event.url,'_parent');
                 return false;
@@ -41,6 +42,6 @@ $(document).ready(function() {
         displayEventEnd: true,
     });
 
-    $('#calendar').fullCalendar('rerenderEvents');
+    //$('#calendar').fullCalendar('renderEvents');
 
 });

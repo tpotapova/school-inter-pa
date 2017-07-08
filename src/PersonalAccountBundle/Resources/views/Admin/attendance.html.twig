@@ -11,32 +11,24 @@
                 </div>
                 <div class="modal-body">
                     <div class = "table-responsive">
-                    {{ form_start(form) }}
-                    <table class="table table-bordered table-hover table-striped table-primary list-table">
-                        <thead>
-                        <tr class="info">
-                            <th style="vertical-align: middle;">Ученик</th>
-                            <th style="vertical-align: middle;">Присутствие</th>
-                            <th>Уважительная причина (при отсутствии)</th>
-                        </tr>
-                        </thead>
-                        <tbody>
 
-                            {% for attendance in form.attendance_collection %}
+                        <table class="table table-bordered table-hover table-striped table-primary list-table">
+                            <thead>
+                            <tr class="info">
+                                <th>Ученик</th>
+                                <th>Присутствие</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+
+                            {% for attendance in attendances %}
                                 <tr>
-
-                                    <td>{{ form_widget (attendance.student) }}</td>
-                                    <td>{{ form_widget(attendance.presence) }}</td>
-                                    <td>{{ form_widget(attendance.excuse) }}</td>
-
-
-
+                                    <td>{{ attendance.student }}</td>
+                                    <td>{{ attendance.presence ? 'да': '' }}</td>
                                 </tr>
                             {% endfor %}
-                        </tbody>
-                    </table>
-                        {{ form_widget(form.save, { 'label': 'Сохранить' }) }}
-                    {{ form_end(form) }}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -63,10 +55,7 @@
             });
         };
 
-        /*
-        $('.modal-footer button,.modal-header button').click(function () {
-            window.location.href = '../attendance';
-        })*/
+
     </script>
 
 {% endblock %}

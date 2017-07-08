@@ -10,10 +10,10 @@
                 <div class="modal-body">
                     {{ form_start(form) }}
                         {{ form_row(form.teacher_lesson, {'attr': {'class': 'form-control'}}) }}
-                        {{ form_row(form.start_date, {'attr': {'class': 'form-control'}}) }}
+                        {{ form_row(form.start_date) }}
                         {{ form_row(form.dow, {'attr': {'class':'form-control'}}) }}
-                        {{ form_row(form.start_time, {'attr': {'class': 'form-control'}}) }}
-                        {{ form_row(form.end_time, {'attr': {'class': 'form-control'}}) }}
+                        {{ form_row(form.start_time) }}
+                        {{ form_row(form.end_time) }}
                         {{ form_row(form.description, {'attr': {'class': 'form-control'}}) }}
                 </div>
                 <div class="modal-footer">

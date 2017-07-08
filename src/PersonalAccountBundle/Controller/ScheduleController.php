@@ -4,6 +4,7 @@ namespace PersonalAccountBundle\Controller;
 
 use PersonalAccountBundle\Entity\ScheduleEvent;
 use PersonalAccountBundle\Entity\TeacherLesson;
+use PersonalAccountBundle\PersonalAccountBundle;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Response;
@@ -74,8 +75,8 @@ class ScheduleController extends Controller
     }
 
     /**
- * @Route("{group_id}/json_events", name="json_events")
- */
+     * @Route("{group_id}/json_events", name="json_events")
+     */
     public function showJsonAction($group_id, Request $request)
     {
         $group_id = intval($group_id,10);
@@ -128,5 +129,18 @@ class ScheduleController extends Controller
         $router = $this->get('router');
         $events_load_url = $router->generate('json_events', ['group_id' => $group_id]);
         return $this->render('PersonalAccountBundle:Student:schedule.html.twig', ['events_load_url' => $events_load_url]);
+    }
+
+    /**
+     * @Route("/schedule_choose_group", name="schedule_choose_group")
+     */
+    public function chooseGroupAction(Request $request)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $result = $em->getRepository('PersonalAccountBundle:Group')->findAll();
+        return $this->render('PersonalAccountBundle:Admin:groupChoose.html.twig',[
+            'result' => $result,
+            'schedule' => true
+        ]);
     }
 }

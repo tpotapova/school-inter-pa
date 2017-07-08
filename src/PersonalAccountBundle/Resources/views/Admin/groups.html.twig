@@ -1,0 +1,60 @@
+{% extends 'PersonalAccountBundle:Admin:base.html.twig' %}
+{% block body %}
+    <h2>Все группы</h2>
+    <table id="all_groups" class="table table-striped table-bordered">
+        <thead class="thead-inverse">
+        <tr>
+            <th>Название группы</th>
+            <th>Список студентов</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for value in result %}
+            <tr>
+                <td>{{ value.name }}</td>
+                <td>
+                {% for s in value.students %}
+                    {{ s ~ ', ' }}
+                {% endfor %}
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <hr>
+    <button class="btn btn-danger" data-toggle="modal" data-target="#FormModal">Удалить</button>
+    <!-- Modal -->
+    <div class="modal fade" id="FormModal" role="dialog">
+        <div class="modal-dialog modal-lrg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title" id="formModalLabel">Удалить группы</h3>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    {{ form_start(form) }}
+                    {{ form_widget(form.group) }}
+                    {{ form_widget(form.delete, { 'label': 'Удалить'}) }}
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+    </div>
+    <a class="btn btn-primary" href="/add_group">Добавить</a>
+{% endblock %}
+{% block javascripts %}
+    <script src ="{{ asset('js/jquery.dataTables.min.js') }}"></script>
+    <script>
+        $(document).ready(function() {
+            $('#all_groups').DataTable({
+                ordering: true,
+            });
+        });
+    </script>
+{% endblock %}
+{% block stylesheets %}
+    {{ parent() }}
+    <link href="{{ asset('/css/jquery.dataTables.min.css') }}" rel="stylesheet">
+{% endblock %}

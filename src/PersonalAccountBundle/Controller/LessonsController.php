@@ -93,6 +93,7 @@ class LessonsController extends Controller
         }
         return $this->render('PersonalAccountBundle:Admin:addLessonType.html.twig', [
             'form'=>$form->createView(),
+            'errors' => $form->getErrors(true),
         ]);
     }
     /**

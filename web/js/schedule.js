@@ -60,5 +60,5 @@ $(document).ready(function() {
             'time_minute': time_minute
         };
     }
-    $('#calendar').fullCalendar('rerenderEvents');
+    $('#calendar').fullCalendar('renderEvents');
 });

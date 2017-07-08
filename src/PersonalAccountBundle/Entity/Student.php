@@ -77,9 +77,31 @@ class Student
     protected $grade;
 
     /**
-    * @ORM\ManyToOne(targetEntity="Group", inversedBy="students")
-    */
-    protected $group;
+     * Many Users have Many Groups.
+     * @ORM\ManyToMany(targetEntity="Group", inversedBy="students", cascade={"persist"})
+     * @ORM\JoinTable(name="students_groups")
+     */
+    protected $groups;
+
+    public function __construct() {
+        $this->groups = new \Doctrine\Common\Collections\ArrayCollection();
+    }
+
+    /**
+     * @param mixed $group
+     */
+    public function addGroup(Group $group)
+    {
+        $group->addStudent($this);// synchronously updating inverse side
+        $this->groups[] = $group;
+    }
+    public function removeGroup(Group $group)
+    {
+        if ($this->groups->contains($group)) {
+            $group->removeStudent($this);
+            return $this->groups->removeElement($group);
+        }
+    }
 
     /**
      * @ORM\Column(type="string", length=400, nullable=true)
@@ -229,17 +251,9 @@ class Student
     /**
      * @return mixed
      */
-    public function getGroup()
+    public function getGroups()
     {
-        return $this->group;
-    }
-
-    /**
-     * @param mixed $group
-     */
-    public function setGroup(Group $group)
-    {
-        $this->group = $group;
+        return $this->groups;
     }
 
     /**

@@ -4,6 +4,7 @@ namespace PersonalAccountBundle\Controller;
 
 use PersonalAccountBundle\Entity\Student;
 use PersonalAccountBundle\Entity\Teacher;
+use PersonalAccountBundle\Form\StudentGroupsType;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -74,6 +75,31 @@ class UserController extends Controller
         return $this->render('PersonalAccountBundle:Admin:students.html.twig', [
             'result' => $result,
             'form' => $form->createView(),
+        ]);
+    }
+    /**
+     * @Route("/students/{student_id}", name="edit_student_groups")
+     */
+    public function editStudentGroupsAction($student_id, Request $request)
+    {
+        $em = $this->getDoctrine()->getEntityManager();
+
+        $entity = $em->getRepository('PersonalAccountBundle:Student')->find($student_id);
+        if (!$entity) {
+            throw $this->createNotFoundException('Студент не найден');
+        };
+        $form = $this->createForm(StudentGroupsType::class, $entity);
+        $form->handleRequest($request);
+        $redirect_url = $this->get('router')->generate('students');
+        if ($form->get('save')->isClicked() and $form->isValid()) {
+            // Save
+            $em->persist($entity);
+            $em->flush();
+            return $this->redirect($redirect_url);
+        }
+        return $this->render('PersonalAccountBundle:Admin:studentGroups.html.twig',[
+            'entity'      => $entity,
+            'form'   => $form->createView(),
         ]);
     }
 }

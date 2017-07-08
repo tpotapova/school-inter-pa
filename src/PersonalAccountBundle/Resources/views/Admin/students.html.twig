@@ -20,7 +20,7 @@
         <tbody>
         {% for value in result %}
             <tr>
-                <td>{{ value.surname ~ ' ' ~ value.name }}</td>
+                <td><a href="/students/{{ value.id }}">{{ value.surname ~ ' ' ~ value.name }}</a></td>
                 <td>{{ value.email }}</td>
                 <td>{{ value.skype }}</td>
                 <td>{{ value.VkUrl }}<br/>{{ value.FbUrl}} </td>
@@ -29,20 +29,28 @@
                 <td>{{ value.Parent2Name }}</td>
                 <td>{{ value.city }}</td>
                 <td>{{ value.grade }}</td>
-                <td>{{ value.group.name }}</td>
+                {% if value.groups|length > 0 %}
+                    <td>
+                        {%  for g in value.groups %}
+                            {{ g.name }}<br/>
+                        {% endfor %}
+                    </td>
+                        {% else %}
+                    <td></td>
+                    {% endif %}
                 <td>{{ value.comments }}</td>
             </tr>
         {% endfor %}
         </tbody>
     </table>
     <hr>
-    <button class="btn btn-danger" data-toggle="modal" data-target="#FormModalS">Удалить</button>
-    <!-- Modal -->
-    <div class="modal fade" id="FormModalS" role="dialog">
+    <button class="btn btn-danger" data-toggle="modal" data-target="#FormModalDelete">Удалить</button>
+    <!-- Modal Delete-->
+    <div class="modal fade" id="FormModalDelete" role="dialog">
         <div class="modal-dialog modal-lrg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h3 class="modal-title" id="formModalSLabel">Удалить учеников</h3>
+                    <h3 class="modal-title" id="formModalDeleteLabel">Удалить учеников</h3>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -56,15 +64,23 @@
             </div>
         </div>
     </div>
+
 {% endblock %}
 {% block javascripts %}
     <script src ="{{ asset('js/jquery.dataTables.min.js') }}"></script>
     <script>
+
         $(document).ready(function() {
             $('#all_students').DataTable({
                 ordering: true,
+                order: [[ 9, "asc" ]],
             });
+            $( ".sorting_1:empty" )
+                .closest('tr').attr({title: "Группа не присвоена"})
+                .closest('tr').css( "background", "rgb(255,220,200)" );
+
         });
+
     </script>
 {% endblock %}
 {% block stylesheets %}

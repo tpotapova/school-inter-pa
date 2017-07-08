@@ -4,11 +4,11 @@ namespace PersonalAccountBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Doctrine\ORM\Mapping\UniqueConstraint;
 
 /**
  * @ORM\Entity
- * @ORM\Table(name="schedule_event")
- * @UniqueEntity(fields={"teacher_lesson", "start_time","start_date"}, message="Событие уже добавлено")
+ * @ORM\Table(name="schedule_event", uniqueConstraints={@UniqueConstraint(name="schedule_unique", columns={"teacher_lesson","start_time","start_date"})}))
  */
 class ScheduleEvent
 {

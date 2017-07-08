@@ -1,0 +1,26 @@
+{% extends 'PersonalAccountBundle:Admin:base.html.twig' %}
+{% block body %}
+    <h2>Выберите группу из списка</h2>
+    <div class="list-group" >
+        {% for value in result %}
+            {% if (schedule) %}
+                <a class="list-group-item" href="{{value.id}}/add_event">{{ value.name }}</a>
+            {% else %}
+                <a class="list-group-item" href="{{value.id}}/attendance">{{ value.name }}</a>
+            {% endif %}
+        {% endfor %}
+    </div>
+{% endblock %}
+{% block javascripts %}
+    <script>
+    $(document).ready(function() {
+        $('.list-group-item').click(function(){
+            $(this).css({
+                color: '#fff',
+                background:'#0275d8',
+                border: '#0275d8'
+            });
+    });
+    });
+    </script>
+{% endblock %}
