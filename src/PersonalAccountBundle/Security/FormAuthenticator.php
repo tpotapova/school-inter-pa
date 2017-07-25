@@ -8,6 +8,8 @@
 
 namespace PersonalAccountBundle\Security;
 
+use Doctrine\ORM\EntityManager;
+use PersonalAccountBundle\PersonalAccountBundle;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -21,23 +23,29 @@ use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Guard\Authenticator\AbstractFormLoginAuthenticator;
 use Symfony\Component\Security\Core\Security;
+use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
+use Symfony\Component\Security\Csrf\CsrfToken;
+use Symfony\Component\Security\Core\Exception\InvalidCsrfTokenException;
+
 
 class FormAuthenticator extends AbstractFormLoginAuthenticator
 {
 
     private $router;
-
     private $encoder;
+    private $em;
 
 
-    public function __construct(RouterInterface $router,UserPasswordEncoderInterface $encoder)
+    public function __construct(RouterInterface $router,UserPasswordEncoderInterface $encoder, EntityManager $em)
     {
         $this->router = $router;
         $this->encoder = $encoder;
+        $this->em = $em;
     }
 
     public function getCredentials(Request $request)
     {
+
         if ($request->getMethod() != Request::METHOD_POST || $request->getPathInfo() != '/login') {
             return;
         }
@@ -78,13 +86,30 @@ class FormAuthenticator extends AbstractFormLoginAuthenticator
     {
         $user = $token->getUser();
         if (in_array('ROLE_SUPER_ADMIN', $user->getRoles())) {
-            $response = new RedirectResponse($this->router->generate('admin_route'));
+            $response = new RedirectResponse($this->router->generate('students'));
         }
         else if (in_array('ROLE_ADMIN', $user->getRoles())) {
-            $response = new RedirectResponse($this->router->generate('teacher_route'));
+            $teacher = $this->em->getRepository('PersonalAccountBundle:Teacher')->findOneBy([
+                'user_id'=>$user->getId()
+            ]);
+            if (is_null($teacher)) {
+                $response = new RedirectResponse($this->router->generate('indexTeacher'));
+            }
+            else {
+                $response = new RedirectResponse($this->router->generate('teacher'));
+            }
         }
         else {
-            $response = new RedirectResponse($this->router->generate('student_route'));
+            $student = $this->em->getRepository('PersonalAccountBundle:Student')->findOneBy([
+                'user_id'=>$user->getId()
+            ]);
+            if (is_null($student)){
+                $response = new RedirectResponse($this->router->generate('indexStudent'));
+            }
+            else {
+                $response = new RedirectResponse($this->router->generate('student'));
+            }
+
         }
         return $response;
         //$url = $this->router->generate('index');

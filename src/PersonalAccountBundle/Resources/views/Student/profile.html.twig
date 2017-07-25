@@ -1,0 +1,116 @@
+{% extends 'PersonalAccountBundle:Student:base.html.twig' %}
+
+{% block body %}
+    <div class="panel panel-info">
+        <div class="panel-heading">
+            <h3 class="panel-title">{{ student.name ~ ' ' ~ student.surname  }}</h3>
+        </div>
+        <div class="panel-body">
+            <div class="row">
+                <div class="col-md-3 col-lg-3 " align="center"> <img alt="User Pic"
+                src="{{ asset('images/avatar.png') }}"
+                class="img-circle img-responsive">
+                </div>
+                <div class=" col-md-9 col-lg-9 ">
+                    <table class="table table-user-information">
+                        <tbody>
+                        <tr>
+                            <td>Группы</td>
+                            <td>{% for g in student.groups %}
+                                {{ student.groups|length > 1 ? g.name ~ ' | ' : g.name }}
+                                {% endfor %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>День рождения</td>
+                            <td>{{ student.birthday | date('d-m-Y')}}</td>
+                        </tr>
+
+                        <tr> {% if student.grade %}
+                            <td>Класс</td>
+                            <td>{{ student.grade}}</td>
+                            {% endif %}
+                        </tr>
+                        <tr>
+                            <td>Город</td>
+                            <td>{{ student.city }}</td>
+                        </tr>
+                        <tr>
+
+                            <td>Email</td>
+                            <td><a href="">{{ student.email }}</a></td>
+                        </tr>
+                        <tr><td>Skype</td>
+                            <td>{{ student.skype }}
+                            </td>
+                        </tr>
+                        {% if student.VkUrl %}
+                        <tr><td>Vkontakte</td>
+                            <td><a href="{{ student.VkUrl }}">{{ student.VkUrl }}</a>
+                            </td>
+                        </tr>
+                        {% endif %}
+                        {% if student.FbUrl %}
+                        <tr><td>Facebook</td>
+                            <td><a href="{{ student.FbUrl }}">{{ student.FbUrl }}</a>
+                            </td>
+                        </tr>
+                        {% endif %}
+                        {% if student.Parent1Name or student.Parent2Name %}
+                            <tr><td>Родители</td>
+                            <td>{{ student.Parent1Name}}<br/>{{ student.Parent2Name }} </td>
+                        </tr>
+                        {% endif %}
+                        {% if student.comments %}
+                        <tr><td>Комментарии</td>
+                            <td>{{ student.comments }}
+                            </td>
+                        </tr>
+                        {% endif %}
+                        </tbody>
+                    </table>
+
+                    <a href="/student_schedule" class="btn btn-primary">Расписание</a>
+                    <a href="/student_attendance" class="btn btn-primary">Посещения</a>
+                </div>
+            </div>
+        </div>
+        <div class="panel-footer">
+            <span>
+                <a href="edit.html" data-original-title="Edit this user" type="button" class="btn btn-sm btn-warning" data-toggle="modal" data-target="#studentEdit">
+                    <i class="glyphicon glyphicon-edit"></i>
+                </a>
+            </span>
+        </div>
+    </div>
+    <div class="modal fade" tabindex="-1" role="dialog" id="studentEdit">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">Редактировать информацию</h4>
+                </div>
+                <div class="modal-body">
+                    {{ form_start(form) }}
+                    {{ form_row(form.name, {'attr': {'class': 'form-control'}}) }}
+                    {{ form_row(form.surname, {'attr': {'class': 'form-control'}}) }}
+                    {{ form_row(form.city, {'attr': {'class': 'form-control'}}) }}
+                    {{ form_row(form.birthday) }}
+                    {{ form_row(form.email, {'attr': {'class': 'form-control'}}) }}
+                    {{ form_row(form.skype, {'attr': {'class': 'form-control'}}) }}
+                    {{ form_row(form.vk_url, {'attr': {'class': 'form-control'}}) }}
+                    {{ form_row(form.fb_url, {'attr': {'class': 'form-control'}}) }}
+                    {{ form_row(form.grade, {'attr': {'class': 'form-control'}}) }}
+                    {{ form_row(form.parent1_name, {'attr': {'class': 'form-control'}}) }}
+                    {{ form_row(form.parent2_name, {'attr': {'class': 'form-control'}}) }}
+                    {{ form_row(form.comments, {'attr': {'class': 'form-control'}}) }}
+                </div>
+                <div class="modal-footer">
+                    {{ form_widget(form.save, { 'label': 'Сохранить' }) }}
+                    {{ form_end(form) }}
+                    <button type="button" class="btn btn-default button-close" data-dismiss="modal">Закрыть</button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

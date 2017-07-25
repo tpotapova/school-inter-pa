@@ -3,6 +3,7 @@
 namespace PersonalAccountBundle\Form;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -20,7 +21,8 @@ class TeacherType extends AbstractType
             ->add('skype',TextType::class)
             ->add('city',TextType::class,['label_format' => '%name%',])
             ->add('comments',TextType::class, array(
-                'required' => false, 'label_format' => '%name%'));
+                'required' => false, 'label_format' => '%name%'))
+            ->add('save', SubmitType::class,['attr' => ['class' => 'btn-primary']]);
     }
     public function configureOptions(OptionsResolver $resolver)
     {

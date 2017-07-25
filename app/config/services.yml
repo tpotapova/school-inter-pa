@@ -7,9 +7,11 @@ services:
 #    service_name:
 #        class: AppBundle\Directory\ClassName
 #        arguments: ["@another_service_name", "plain_value", "%parameter_name%"]
+
     app.form_authenticator:
         class: PersonalAccountBundle\Security\FormAuthenticator
-        arguments: ["@router", "@security.password_encoder"]
+        arguments: ["@router", "@security.password_encoder","@doctrine.orm.entity_manager"]
+        autowire: true
     app.google:
         class: PersonalAccountBundle\Service\Google
     app.attendance_manager:
@@ -18,4 +20,5 @@ services:
         autowire: true
     app.invoice_manager:
         class: PersonalAccountBundle\Service\InvoiceManager
+        arguments: ["@doctrine.orm.entity_manager" ]
         autowire: true

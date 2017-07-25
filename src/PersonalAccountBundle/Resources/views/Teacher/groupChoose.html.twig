@@ -1,0 +1,22 @@
+{% extends 'PersonalAccountBundle:Teacher:base.html.twig' %}
+{% block body %}
+    <h2>Выберите группу из списка</h2>
+    <div class="list-group" >
+        {% for value in result %}
+                <a class="list-group-item" href="{{teacher_id}}/{{value.id}}/attendance">{{ value.name }}</a>
+        {% endfor %}
+    </div>
+{% endblock %}
+{% block javascripts %}
+    <script>
+        $(document).ready(function() {
+            $('.list-group-item').click(function(){
+                $(this).css({
+                    color: '#fff',
+                    background:'#0275d8',
+                    border: '#0275d8'
+                });
+            });
+        });
+    </script>
+{% endblock %}

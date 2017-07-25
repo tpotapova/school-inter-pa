@@ -1,0 +1,76 @@
+{% extends 'PersonalAccountBundle:Teacher:base.html.twig' %}
+
+{% block body %}
+    <div class="panel panel-info">
+        <div class="panel-heading">
+            <h3 class="panel-title">{{ teacher.name ~ ' ' ~ teacher.surname  }}</h3>
+        </div>
+        <div class="panel-body">
+            <div class="row">
+                <div class="col-md-3 col-lg-3 " align="center"> <img alt="User Pic"
+                                                                     src="{{ asset('images/avatar_t.png') }}"
+                                                                     class="img-circle img-responsive">
+                </div>
+                <div class=" col-md-9 col-lg-9 ">
+                    <table class="table table-user-information">
+                        <tbody>
+                        <tr>
+                            <td>Город</td>
+                            <td>{{ teacher.city }}</td>
+                        </tr>
+                        <tr>
+
+                            <td>Email</td>
+                            <td><a href="">{{ teacher.email }}</a></td>
+                        </tr>
+                        <tr><td>Skype</td>
+                            <td>{{ teacher.skype }}
+                            </td>
+                        </tr>
+                        {% if teacher.comments %}
+                            <tr><td>Комментарии</td>
+                                <td>{{ teacher.comments }}
+                                </td>
+                            </tr>
+                        {% endif %}
+                        </tbody>
+                    </table>
+
+                    <a href="/teacher_schedule" class="btn btn-primary">Расписание</a>
+                    <a href="/choose_group" class="btn btn-primary">Посещения</a>
+                </div>
+            </div>
+        </div>
+        <div class="panel-footer">
+            <span>
+                <a href="edit.html" data-original-title="Edit this user" type="button" class="btn btn-sm btn-warning" data-toggle="modal" data-target="#teacherEdit">
+                    <i class="glyphicon glyphicon-edit"></i>
+                </a>
+            </span>
+        </div>
+    </div>
+    <div class="modal fade" tabindex="-1" role="dialog" id="teacherEdit">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">Редактировать информацию</h4>
+                </div>
+                <div class="modal-body">
+                    {{ form_start(form) }}
+                    {{ form_row(form.name, {'attr': {'class': 'form-control'}}) }}
+                    {{ form_row(form.surname, {'attr': {'class': 'form-control'}}) }}
+                    {{ form_row(form.city, {'attr': {'class': 'form-control'}}) }}
+                    {{ form_row(form.email, {'attr': {'class': 'form-control'}}) }}
+                    {{ form_row(form.skype, {'attr': {'class': 'form-control'}}) }}
+                    {{ form_row(form.comments, {'attr': {'class': 'form-control'}}) }}
+                </div>
+                <div class="modal-footer">
+                    {{ form_widget(form.save, { 'label': 'Сохранить' }) }}
+                    {{ form_end(form) }}
+                    <button type="button" class="btn btn-default button-close" data-dismiss="modal">Закрыть</button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

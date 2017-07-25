@@ -2,6 +2,8 @@
 
 namespace PersonalAccountBundle\Controller;
 
+use PersonalAccountBundle\Entity\StudentInvoiceCollector;
+use PersonalAccountBundle\Form\StudentInvoiceCollectorType;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use PersonalAccountBundle\Entity\TeacherLesson;
 use PersonalAccountBundle\Entity\Invoice;
@@ -39,6 +41,11 @@ class InvoiceController extends Controller
                 'required' => true,
                 'class' => TeacherLesson::class,
                 'choice_label' => 'title',
+                'query_builder' => function ($repository) {
+                    return $repository
+                        ->createQueryBuilder('e')
+                        ->where('e.active = true');
+                },
             ])
             ->add('date', DateType::class,  ['widget' => 'single_text','label' => 'Выберите дату','required'=>true])
             ->add('make', SubmitType::class,  ['attr' => ['class' => 'btn-primary']])
@@ -138,10 +145,35 @@ class InvoiceController extends Controller
         $invoice_title = $invoice->getTeacherLesson()->getTitle();
         $from_date = $invoice->getFromDate() ? $invoice->getFromDate()->format('d-m-Y') : '';
         $to_date = $invoice->getToDate()->format('d-m-Y');
+        $collector = new StudentInvoiceCollector();
+        $collector->setStudentInvoiceCollection($invoices);
+        $form1 = $this->createForm(StudentInvoiceCollectorType::class, $collector);
+        $form1->handleRequest($request);
+        if ($form1->get('save')->isClicked()) {
+            if ($form1->isValid()) {
+                $payed = 0;
+                foreach ($invoices as $student_invoice) {
+                    $student_invoice->setInvoiceId($invoice);
+                    if ($student_invoice->getPayed()){
+                        $payed+=1;
+                    }
+                    $em->persist($student_invoice);
+                }
+                $lesson_invoice = $em->getRepository('PersonalAccountBundle\Entity\Invoice')->find($id);
+                if (count($invoices) == $payed) {
+                    $lesson_invoice->setPayed(true);
+                    $em->persist($lesson_invoice);
+                }
+                else {
+                    $lesson_invoice->setPayed(false);
+                    $em->persist($lesson_invoice);
+                }
+                $em->flush();
+                return $this->redirect($this->generateUrl($request->get('_route'), ['id'=>$id]));
+            }
+        }
         $form = $this->createFormBuilder()
                     ->add('delete', SubmitType::class, array('attr' => ['class' => 'btn-danger']))
-                    //->add('edit', SubmitType::class, array('attr' => ['class' => 'btn-primary']))
-                    //->add('save', SubmitType::class, array('attr' => ['class' => 'btn-info']))
                     ->getForm();
         $form->handleRequest($request);
         $redirect_url = $this->get('router')->generate('invoices');
@@ -159,6 +191,39 @@ class InvoiceController extends Controller
             'from_date' => $from_date,
             'to_date' => $to_date,
             'form' => $form->createView(),
+            'form1' => $form1->createView(),
         ]);
+    }
+    /**
+     * @Route("/student_invoices/", name="student_invoices")
+     * @Security("has_role('ROLE_USER')")
+     */
+    public function showStudentInvoicesAction(Request $request)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $authUser = $this->get('security.token_storage')->getToken()->getUser();
+        $student = $em->getRepository('PersonalAccountBundle:Student')->findOneBy(['user_id' => $authUser->getId()]);
+        if (!$student or !($student->getActive())) {
+            throw $this->createNotFoundException('Студент не найден');
+        }
+        $manager = $this->container->get('app.invoice_manager');
+        $invoices = $manager->show_all_student_invoices($student->getId());
+        return $this->render('PersonalAccountBundle:Student:allInvoices.html.twig', ['invoices' => $invoices,]);
+    }
+    /**
+     * @Route("/teacher_invoices/", name="teacher_invoices")
+     * @Security("has_role('ROLE_ADMIN')")
+     */
+    public function showTeacherInvoicesAction(Request $request)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $authUser = $this->get('security.token_storage')->getToken()->getUser();
+        $teacher = $em->getRepository('PersonalAccountBundle:Teacher')->findOneBy(['user_id' => $authUser->getId()]);
+        if (!$teacher or !($teacher->getActive())) {
+            throw $this->createNotFoundException('Преподаватель не найден');
+        }
+        $manager = $this->container->get('app.invoice_manager');
+        $invoices = $manager->show_all_teacher_invoices($teacher->getId());
+        return $this->render('PersonalAccountBundle:Teacher:allInvoices.html.twig', ['invoices' => $invoices,]);
     }
 }

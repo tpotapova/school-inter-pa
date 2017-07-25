@@ -12,6 +12,7 @@ $(document).ready(function() {
         timeFormat: 'H:mm',
         eventRender: function(event, element) {
             element[0].removeAttribute('href');
+            element.find('span.fc-event-title').html(element.find('span.fc-event-title').text());
             if(event.description) {
                 element.qtip({
                     content: event.description,
@@ -25,5 +26,4 @@ $(document).ready(function() {
         displayEventEnd: true,
     });
     $('#calendar').fullCalendar('rerenderEvents');
-
 });

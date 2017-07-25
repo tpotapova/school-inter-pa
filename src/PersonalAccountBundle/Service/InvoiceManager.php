@@ -112,5 +112,41 @@ class InvoiceManager
         $result = $qb->getQuery()->getScalarResult();
         return $result;
     }
+    public function show_all_student_invoices($student_id) {
+        $qb = $this->em->createQueryBuilder();
+        $qb->select('i.from_date i_from, i.to_date i_to,l.title l_title,s.total s_total, s.payed s_payed')
+            ->from('PersonalAccountBundle:Invoice','i')
+            ->join ('PersonalAccountBundle:StudentInvoice','s', 'with','i.id = s.invoice_id')
+            ->join('PersonalAccountBundle:TeacherLesson','l','with','i.teacher_lesson = l.id')
+            ->where ('s.student_id = :student_id')
+            ->setParameter('student_id',$student_id);
+        $result = $qb->getQuery()->getScalarResult();
+        return $result;
+    }
+
+    public function show_all_teacher_invoices($teacher_id) {
+        $qb = $this->em->createQueryBuilder();
+        $qb->select('i.from_date i_from, i.to_date i_to,i.total i_total, i.payed i_payed, l.title l_title')
+            ->from('PersonalAccountBundle:Invoice','i')
+            ->join('PersonalAccountBundle:TeacherLesson','l','with','i.teacher_lesson = l.id')
+            ->where ('l.teacher = :teacher_id')
+            ->setParameter('teacher_id',$teacher_id);
+        $result = $qb->getQuery()->getScalarResult();
+        return $result;
+    }
+    /*
+    public function get_group_unpaid_invoices($group_id){
+        $qb = $this->em->createQueryBuilder();
+        $qb->select('i.id i_id,j.id j_id, i.payed payed, i.to_date to_date, MAX(j.date) max_date')
+            ->from('PersonalAccountBundle:Journal','j')
+            ->innerJoin('PersonalAccountBundle:Invoice', 'i', 'with','j.teacher_lesson = i.teacher_lesson')
+            ->having('to_date <= MAX(j.date)')
+            ->where('j.group = :group_id')
+            ->andWhere('i.payed = false')
+            ->groupBy('j.teacher_lesson')
+            ->setParameter('group_id', $group_id);
+        $result = $qb->getQuery()->getResult();
+        return $result;
+    }*/
 
 }

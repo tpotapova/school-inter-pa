@@ -1,7 +1,7 @@
 {% extends 'PersonalAccountBundle:Admin:base.html.twig' %}
 {% block body %}
     <h2>Все ученики</h2>
-    <table id="all_students" class="table table-striped table-bordered">
+    <table id="all_students" class="table table-striped table-bordered table-hover ">
         <thead class="thead-inverse">
         <tr>
             <th>Фамилия Имя</th>
@@ -31,7 +31,7 @@
                 <td>{{ value.grade }}</td>
                 {% if value.groups|length > 0 %}
                     <td>
-                        {%  for g in value.groups %}
+                        {%  for g in value.groups if g.active %}
                             {{ g.name }}<br/>
                         {% endfor %}
                     </td>
@@ -75,9 +75,21 @@
                 ordering: true,
                 order: [[ 9, "asc" ]],
             });
+
+            $('.sorting_1').each(function () {
+                    $(this).text(function () {
+                        if ($(this).text().trim().length == 0){
+                            return $(this).text().trim();
+                            console.log($(this).text().trim());
+                        }
+
+                    });
+            });
+
             $( ".sorting_1:empty" )
                 .closest('tr').attr({title: "Группа не присвоена"})
                 .closest('tr').css( "background", "rgb(255,220,200)" );
+
 
         });
 

@@ -15,6 +15,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
@@ -23,9 +24,19 @@ class AttendanceController extends Controller
 {
     /**
      * @Route ("{teacher_id}/{group_id}/attendance/", name="attendance")
+     * @Security("has_role('ROLE_ADMIN')")
      */
     public function showScheduleAction($group_id, $teacher_id, Request $request)
     {
+        $em = $this->getDoctrine()->getManager();
+        $authUser = $this->get('security.token_storage')->getToken()->getUser();
+        $teacher = $em->getRepository('PersonalAccountBundle:Teacher')->findOneBy(['user_id' => $authUser->getId()]);
+        if (!$teacher or !($teacher->getActive())) {
+            throw $this->createNotFoundException('Преподаватель не найден');
+        }
+        if ($teacher_id != $teacher->getId()) {
+            throw $this->createAccessDeniedException('Доступ запрещен');
+        }
         $show_modal = 'false';
         $router = $this->get('router');
         $events_load_url = $router->generate('json', ['teacher_id' => $teacher_id,'group_id' => $group_id]);
@@ -40,14 +51,16 @@ class AttendanceController extends Controller
 
     /**
      * @Route ("{group_id}/attendance/", name="all_attendances")
+     * @Security("has_role('ROLE_SUPER_ADMIN')")
      */
     public function showAttendanceAction($group_id, Request $request)
     {
+
         $show_modal = 'false';
         $router = $this->get('router');
         $events_load_url = $router->generate('json2', ['group_id' => $group_id]);
 
-        return $this->render('PersonalAccountBundle:Teacher:a1.html.twig', ['show_modal' => $show_modal,
+        return $this->render('PersonalAccountBundle:Admin:a1.html.twig', ['show_modal' => $show_modal,
             'group_id' => $group_id,
             'events_load_url' => $events_load_url,
         ]);
@@ -55,6 +68,7 @@ class AttendanceController extends Controller
 
     /**
      * @Route("{group_id}/json2_events/", name="json2")
+     * @Security("has_role('ROLE_SUPER_ADMIN')")
      */
     public function showAllJsonAction($group_id, Request $request)
     {
@@ -98,6 +112,7 @@ class AttendanceController extends Controller
 
     /**
      * @Route("{group_id}/{journal_id}/show_presense", name="show_presense_list")
+     * @Security("has_role('ROLE_SUPER_ADMIN')")
      */
     public function showPresenceListAction($group_id, $journal_id, Request $request)
     {
@@ -163,6 +178,7 @@ class AttendanceController extends Controller
 
     /**
      * @Route("{teacher_id}/{group_id}/json_events/", name="json")
+     * @Security("has_role('ROLE_ADMIN')")
      */
     public function showJsonAction($group_id,$teacher_id, Request $request)
     {
@@ -174,10 +190,20 @@ class AttendanceController extends Controller
     }
     /**
      * @Route("{teacher_id}/{group_id}/{journal_id}/attendance", name="edit_attendance")
+     * @Security("has_role('ROLE_ADMIN')")
      */
     public function editAttendanceAction($group_id, $teacher_id, $journal_id, Request $request)
     {
+
         $em = $this->getDoctrine()->getManager();
+        $authUser = $this->get('security.token_storage')->getToken()->getUser();
+        $teacher = $em->getRepository('PersonalAccountBundle:Teacher')->findOneBy(['user_id' => $authUser->getId()]);
+        if (!$teacher or !($teacher->getActive())) {
+            throw $this->createNotFoundException('Преподаватель не найден');
+        }
+        if ($teacher_id != $teacher->getId()) {
+            throw $this->createAccessDeniedException('Доступ запрещен');
+        }
         $show_modal = 'true';
         $attendances = $em->getRepository('PersonalAccountBundle\Entity\Presence')->findBy(array('journal_id' => $journal_id));
         $journal = $em->getRepository('PersonalAccountBundle\Entity\Journal')->find($journal_id);
@@ -217,16 +243,118 @@ class AttendanceController extends Controller
 
     /**
      * @Route("/attendance_choose_group", name="attendance_choose_group")
+     * @Security("has_role('ROLE_SUPER_ADMIN')")
      */
     public function chooseGroupAction(Request $request)
     {
         $em = $this->getDoctrine()->getManager();
-        $result = $em->getRepository('PersonalAccountBundle:Group')->findAll();
+        $result = $em->getRepository('PersonalAccountBundle:Group')->findBy(['active' =>true]);
         return $this->render('PersonalAccountBundle:Admin:groupChoose.html.twig',[
             'result' => $result,
             'schedule' => false
         ]);
     }
 
+    /**
+     * @Route("/choose_group", name="choose_group")
+     * @Security("has_role('ROLE_ADMIN')")
+     */
+    public function chooseTeacherGroupAction(Request $request)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $authUser = $this->get('security.token_storage')->getToken()->getUser();
+        $teacher = $em->getRepository('PersonalAccountBundle:Teacher')->findOneBy(['user_id' => $authUser->getId()]);
+        if (!$teacher or !($teacher->getActive())) {
+            throw $this->createNotFoundException('Преподаватель не найден');
+        };
+        if ($teacher->getUserId()->getId() !== $authUser->getId()) {
+            throw $this->createAccessDeniedException('Преподаватель не авторизован');
+        }
+        $lessons = $em->getRepository('PersonalAccountBundle:TeacherLesson')->findBy(['teacher' => $teacher]);
+        if (!$lessons){
+            throw $this->createNotFoundException('Занятия не найдены');
+            return;
+        }
+        $lessonIds = [];
+        foreach ($lessons as $l) {
+            $lessonIds[] = $l->getId();
+        };
+        $events = $em->getRepository('PersonalAccountBundle:ScheduleEvent')->findBy(['teacher_lesson' => $lessonIds]);
+        $groupIds =[];
+        foreach ($events as $e){
+            $groupIds[]=$e->getGroupId();
+        }
+        $result = $em->getRepository('PersonalAccountBundle:Group')->findBy(['id' => $groupIds, 'active' =>true]);
+        return $this->render('PersonalAccountBundle:Teacher:groupChoose.html.twig',[
+            'result' => $result,
+            'teacher_id' => $teacher->getId(),
+        ]);
+    }
 
+    /**
+     * @Route("/student_attendance", name="student_attendance")
+     * @Security("has_role('ROLE_USER')")
+     */
+    public function showStudentAttendanceAction(Request $request)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $authUser = $this->get('security.token_storage')->getToken()->getUser();
+        $student = $em->getRepository('PersonalAccountBundle:Student')->findOneBy(['user_id' => $authUser->getId()]);
+        if (!$student or !($student->getActive())) {
+            throw $this->createNotFoundException('Студент не найден');
+        }
+        $events_load_url = $this->get('router')->generate('json3');
+        return $this->render('PersonalAccountBundle:Student:attendance.html.twig', ['show_modal' => false,
+            'events_load_url' => $events_load_url,
+        ]);
+    }
+
+    /**
+     * @Route("student_attendance/json_events/", name="json3")
+     * @Security("has_role('ROLE_USER')")
+     */
+    public function showStudentJsonAction(Request $request)
+    {
+        $events = $this->getStudentAttendanceData();
+        $response = new JsonResponse($events);
+        return $response;
+    }
+    protected function getStudentAttendanceData()
+    {
+        $em = $this->getDoctrine()->getManager();
+        $authUser = $this->get('security.token_storage')->getToken()->getUser();
+        $student = $em->getRepository('PersonalAccountBundle:Student')->findOneBy(['user_id' => $authUser->getId()]);
+        if (!$student or !($student->getActive())) {
+            throw $this->createNotFoundException('Студент не найден');
+        }
+        $presences = $em->getRepository('PersonalAccountBundle:Presence')->findBy(['student'=>$student->getId()]);
+        if (!$presences) {
+            throw $this->createNotFoundException('Посещения не найдены');
+            return;
+        }
+        $qb = $em->createQueryBuilder();
+        $qb ->select('j.date j_date, j.start_time j_start, j.end_time j_end,t.title t_title, p.presence p_presence')
+            ->from('PersonalAccountBundle:Journal', 'j')
+            ->join('PersonalAccountBundle:Presence', 'p','with','j.id = p.journal_id')
+            ->join('PersonalAccountBundle:TeacherLesson','t','with','t.id = j.teacher_lesson')
+            ->where('p.student = :student_id')
+            ->setParameter('student_id', $student->getId());
+        $result = $qb
+            ->getQuery()
+            ->getResult();
+        $event_data = [];
+        foreach($result as $value){
+            $d = $value['j_date'];
+            $start = $value['j_start'];
+            $end = $value['j_end'];
+            $event_data[] = [
+                "title"=>$value['t_title'],
+                "start" => $d->format('Y-m-d') .' ' .$start->format('H:i:s'),
+                "end" => $d->format('Y-m-d') .' ' .$end->format('H:i:s'),
+                "allDay"=>false,
+                "color" => ($value['p_presence']) ? 'green' : 'blue',
+            ];
+        }
+        return $event_data;
+    }
 }

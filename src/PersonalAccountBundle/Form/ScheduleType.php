@@ -31,8 +31,10 @@ class ScheduleType extends AbstractType
                     'label_format' => '%name%',
                     'class' => TeacherLesson::class,
                     'choice_label' => 'title',
-                    'query_builder' => function (EntityRepository $er) {
-                        return $er->createQueryBuilder('tl');
+                    'query_builder' => function ($repository) {
+                        return $repository
+                            ->createQueryBuilder('e')
+                            ->where('e.active = true');
                 },
                 ]
             )

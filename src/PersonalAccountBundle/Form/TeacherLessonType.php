@@ -34,7 +34,10 @@ class TeacherLessonType extends AbstractType
                     'class' => Teacher::class,
                     'choice_label' => 'surname',
                     'query_builder' => function (EntityRepository $er) {
-                        return $er->createQueryBuilder('t');
+                        return $er
+                            ->createQueryBuilder('t')
+                            ->where('t.active = true');
+
                     },
                 ]
             )
@@ -46,7 +49,10 @@ class TeacherLessonType extends AbstractType
                     'class' => Lesson::class,
                     'choice_label' => 'name',
                     'query_builder' => function (EntityRepository $er) {
-                        return $er->createQueryBuilder('l');
+                        return $er
+                            ->createQueryBuilder('l')
+                            ->where('l.active = true');
+
                     },
                 ]
             );

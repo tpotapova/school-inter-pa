@@ -4,10 +4,11 @@ namespace PersonalAccountBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
+use Doctrine\ORM\Mapping\UniqueConstraint;
 
 /**
-* @ORM\Entity
-* @ORM\Table(name="student")
+ * @ORM\Entity
+ * @ORM\Table(name="student", uniqueConstraints={@UniqueConstraint(name="student_unique", columns={"name","surname","birthday" })})
 */
 class Student
 {
@@ -77,6 +78,11 @@ class Student
     protected $grade;
 
     /**
+     * @ORM\Column(type="boolean",nullable=true)
+     */
+    protected $active;
+
+    /**
      * Many Users have Many Groups.
      * @ORM\ManyToMany(targetEntity="Group", inversedBy="students", cascade={"persist"})
      * @ORM\JoinTable(name="students_groups")
@@ -98,6 +104,7 @@ class Student
     public function removeGroup(Group $group)
     {
         if ($this->groups->contains($group)) {
+
             $group->removeStudent($this);
             return $this->groups->removeElement($group);
         }
@@ -339,5 +346,19 @@ class Student
     {
         return $this->name.' '.$this->surname;
     }
+    /**
+     * @return mixed
+     */
+    public function getActive()
+    {
+        return $this->active;
+    }
 
+    /**
+     * @param mixed $active
+     */
+    public function setActive($active)
+    {
+        $this->active = $active;
+    }
 }

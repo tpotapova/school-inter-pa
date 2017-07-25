@@ -1,4 +1,4 @@
-{% extends 'PersonalAccountBundle:Admin:base.html.twig' %}
+{% extends 'PersonalAccountBundle:Teacher:base.html.twig' %}
 {% block body %}
     <div class="modal fade" tabindex="-1" role="dialog" id="pageopen">
         <div class="modal-dialog" role="document">
@@ -15,8 +15,8 @@
                     <table class="table table-bordered table-hover table-striped table-primary list-table">
                         <thead>
                         <tr class="info">
-                            <th style="vertical-align: middle;">Ученик</th>
-                            <th style="vertical-align: middle;">Присутствие</th>
+                            <th>Ученик</th>
+                            <th>Присутствие</th>
                             <th>Уважительная причина (при отсутствии)</th>
                         </tr>
                         </thead>
@@ -68,5 +68,5 @@
             window.location.href = '../attendance';
         })*/
     </script>
-
 {% endblock %}
+

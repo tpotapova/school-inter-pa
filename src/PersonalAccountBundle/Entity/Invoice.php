@@ -27,7 +27,7 @@ class Invoice
     protected $id;
 
     /**
-     * @ORM\ManyToOne(targetEntity="TeacherLesson")
+     * @ORM\ManyToOne(targetEntity="TeacherLesson",)
      * @ORM\JoinColumn(name="teacher_lesson", referencedColumnName="id")
      */
     protected  $teacher_lesson;

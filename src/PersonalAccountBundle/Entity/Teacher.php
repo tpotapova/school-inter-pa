@@ -4,10 +4,11 @@ namespace PersonalAccountBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
+use Doctrine\ORM\Mapping\UniqueConstraint;
 
 /**
  * @ORM\Entity
- * @ORM\Table(name="teacher")
+ * @ORM\Table(name="teacher", uniqueConstraints={@UniqueConstraint(name="teacher_unique", columns={"name","surname"})})
  */
 class Teacher
 {
@@ -55,6 +56,12 @@ class Teacher
      * @ORM\Column(type="text", nullable=true)
      */
     protected $comments;
+
+    /**
+     * @ORM\Column(type="boolean",nullable=true)
+     */
+    protected $active;
+
 
     /**
      * @return mixed
@@ -178,5 +185,20 @@ class Teacher
     public function __toString()
     {
         return $this->surname . ' '. $this->name;
+    }
+    /**
+     * @return mixed
+     */
+    public function getActive()
+    {
+        return $this->active;
+    }
+
+    /**
+     * @param mixed $active
+     */
+    public function setActive($active)
+    {
+        $this->active = $active;
     }
 }

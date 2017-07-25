@@ -1,29 +1,17 @@
-{% extends 'PersonalAccountBundle:Teacher:base.html.twig' %}
+{% extends 'PersonalAccountBundle:Student:base.html.twig' %}
+
 {% block body %}
     <div class="note">
         <div id="rectangle1"></div>
-        <span> - Не заполнено</span>
+        <span> - Не был</span>
         <div id="rectangle2"></div>
-        <span> - Заполнено</span>
+        <span> - Был</span>
     </div>
     <div id="calendar"></div>
 {% endblock %}
 {% block javascripts %}
-    <script>
-        var defaults = {
-            'showModalOnLoad': false,
-            'events_load_url': '{{ events_load_url }}'
-        };
-        if (defaults.showModalOnLoad) {
-            showModal();
-        }
-        function showModal() {
-            $('#pageopen').modal({
-                show: true
-            });
-        };
-    </script>
-    <script src ="{{ asset('js/attendance.js') }}"></script>
+    <script src ="{{ asset('js/show_schedule.js') }}"></script>
+    <script>var events_load_url = '{{ events_load_url }}'</script>
 {% endblock %}
 {% block stylesheets %}
     <style>

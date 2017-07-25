@@ -21,6 +21,11 @@ class StudentGroupsType extends AbstractType
             'choice_label' => 'name',
             'expanded' =>true,
             'multiple' => true,
+            'query_builder' => function ($repository) {
+                    return $repository
+                        ->createQueryBuilder('e')
+                        ->where('e.active = true');
+                },
             ])
             ->add('save', SubmitType::class,['attr' => ['class' => 'btn-primary']]);
 

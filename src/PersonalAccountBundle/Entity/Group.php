@@ -4,11 +4,11 @@ namespace PersonalAccountBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Doctrine\ORM\Mapping\UniqueConstraint;
 
 /**
  * @ORM\Entity
- * @ORM\Table(name="`group`")
- * @UniqueEntity(fields="name", message="Это название уже используется, пожалуйста, выберите другое")
+ * @ORM\Table(name="`group`", uniqueConstraints={@UniqueConstraint(name="unique_group_name", columns={"name","active"})})
  */
 class Group
 {
@@ -20,14 +20,18 @@ class Group
     protected $id;
 
     /**
-     * @ORM\Column(type="string", length = 100,unique=true)
+     * @ORM\Column(type="string", length = 100)
      */
     protected $name;
 
     /**
+     * @ORM\Column(type="boolean",nullable=true)
+     */
+    protected $active;
+
+    /**
      * @ORM\ManyToMany(targetEntity="Student", mappedBy="groups", cascade={"persist"})
      */
-
     protected $students;
 
     public function __construct() {
@@ -74,4 +78,19 @@ class Group
         $this->name = $name;
     }
 
+    /**
+     * @return mixed
+     */
+    public function getActive()
+    {
+        return $this->active;
+    }
+
+    /**
+     * @param mixed $active
+     */
+    public function setActive($active)
+    {
+        $this->active = $active;
+    }
 }

@@ -49,12 +49,20 @@ class AuthController extends Controller
             $user_id = $user->getId();
             $session = $request->getSession();
             $session->set('user_id', $user_id);
+            /*
             if ($user->getRole() == 'ROLE_USER'){
                 return $this->redirectToRoute('indexStudent');
             }
             else if ($user->getRole() == 'ROLE_ADMIN'){
                 return $this->redirectToRoute('indexTeacher');
-            }
+            }*/
+            return $this->get('security.authentication.guard_handler')
+                ->authenticateUserAndHandleSuccess(
+                    $user,
+                    $request,
+                    $this->get('app.form_authenticator'),
+                    'main'
+                );
         }
 
         return $this->render('default/register.html.twig', [

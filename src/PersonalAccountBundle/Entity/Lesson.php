@@ -28,6 +28,11 @@ class Lesson
     protected  $name;
 
     /**
+     * @ORM\Column(type="boolean",nullable=true)
+     */
+    protected $active;
+
+    /**
      * @return mixed
      */
     public function getId()
@@ -50,6 +55,20 @@ class Lesson
     {
         $this->name = $name;
     }
+    /**
+     * @return mixed
+     */
+    public function getActive()
+    {
+        return $this->active;
+    }
 
+    /**
+     * @param mixed $active
+     */
+    public function setActive($active)
+    {
+        $this->active = $active;
+    }
 
 }

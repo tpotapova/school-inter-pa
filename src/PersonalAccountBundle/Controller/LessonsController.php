@@ -8,6 +8,7 @@ use PersonalAccountBundle\Entity\TeacherLesson;
 use PersonalAccountBundle\Form\LessonType;
 use PersonalAccountBundle\PersonalAccountBundle;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -22,6 +23,7 @@ class LessonsController extends Controller
 {
     /**
      * @Route("/add_lesson", name="add_lesson")
+     * @Security("has_role('ROLE_SUPER_ADMIN')")
      */
     public function addLessonAction(Request $request)
     {
@@ -32,6 +34,7 @@ class LessonsController extends Controller
         $redirect_url = $this->get('router')->generate('lessons');
         if ($form->get('save')->isClicked() and $form->isValid()) {
                 // Save
+                $lesson->setActive(true);
                 $em->persist($lesson);
                 $em->flush();
                 return $this->redirect($redirect_url);
@@ -40,6 +43,7 @@ class LessonsController extends Controller
     }
     /**
      * @Route("/lesson_categories", name="lesson_categories")
+     * @Security("has_role('ROLE_SUPER_ADMIN')")
      */
     public function lessonCategoriesAction(Request $request)
     {
@@ -52,6 +56,11 @@ class LessonsController extends Controller
                 'choice_label' => 'name',
                 'expanded' =>true,
                 'multiple' => true,
+                'query_builder' => function ($repository) {
+                    return $repository
+                        ->createQueryBuilder('c')
+                        ->where('c.active = true');
+                },
             ])
             ->add('add', SubmitType::class,  ['attr' => ['class' => 'btn-primary']])
             ->add('delete', SubmitType::class,  ['attr' => ['class' => 'btn-danger']])
@@ -66,7 +75,7 @@ class LessonsController extends Controller
         if ($form->isValid() and $form->get('delete')->isClicked()){
             $data = $form->getData();
             foreach ($data['lesson'] as $l) {
-                $em->remove($l);
+                $l->setActive(null);
             }
             $em->flush();
             return $this->redirect($this->generateUrl($request->get('_route'), $request->query->all()));
@@ -78,6 +87,7 @@ class LessonsController extends Controller
     }
     /**
      * @Route("/add_lesson_category", name="add_lesson_category")
+     * @Security("has_role('ROLE_SUPER_ADMIN')")
      */
     public function addLessonCategoryAction(Request $request)
     {
@@ -87,6 +97,7 @@ class LessonsController extends Controller
         $form->handleRequest($request);
         if ($form->get('save')->isClicked() and $form->isValid()) {
             // Save
+            $category->setActive(true);
             $em->persist($category);
             $em->flush();
             return $this->redirect($this->get('router')->generate('lesson_categories'));
@@ -98,6 +109,7 @@ class LessonsController extends Controller
     }
     /**
      * @Route("/lessons", name="lessons")
+     * @Security("has_role('ROLE_SUPER_ADMIN')")
      */
     public function showlessonsAction(Request $request)
     {
@@ -106,7 +118,8 @@ class LessonsController extends Controller
         $qb->select('tl.id as tl_id, tl.rate as tl_rate, tl.title as tl_title,l.name as l_name,t.surname as t_surname, t.name as t_name')
             ->from('PersonalAccountBundle:TeacherLesson','tl')
             ->join('PersonalAccountBundle:Lesson','l','with','tl.lesson = l.id')
-            ->join('PersonalAccountBundle:Teacher','t','with','tl.teacher = t.id');
+            ->join('PersonalAccountBundle:Teacher','t','with','tl.teacher = t.id')
+            ->where('tl.active = true');
         $result = $qb->getQuery()->getScalarResult();
         return $this->render('PersonalAccountBundle:Admin:lessons.html.twig', [
             'result' => $result,
@@ -114,6 +127,7 @@ class LessonsController extends Controller
     }
     /**
      * @Route("/lessons/{lesson_id}", name="edit_lesson")
+     * @Security("has_role('ROLE_SUPER_ADMIN')")
      */
     public function editLessonAction($lesson_id,Request $request)
     {
@@ -133,7 +147,12 @@ class LessonsController extends Controller
             return $this->redirect($redirect_url);
         }
         if ($form->get('delete')->isClicked()){
-            $em->remove($entity);
+            $entity->setActive(null);
+            $em->persist($entity);
+            $events = $em->getRepository('PersonalAccountBundle:ScheduleEvent')->findBy(['teacher_lesson'=>$entity->getId()]);
+            foreach ($events as $e) {
+                $em->remove($e);
+            }
             $em->flush();
             return $this->redirect($redirect_url);
         }

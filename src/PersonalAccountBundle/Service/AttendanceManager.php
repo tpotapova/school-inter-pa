@@ -74,35 +74,8 @@ class AttendanceManager
         $this->em->clear();
     }
 
-    /*
-    protected function collect_attendances($date)
-    {
-        $schedule = $this->get_schedule_per_day($date);
-        $attendances = new ArrayCollection();
-        foreach($schedule as $value) {
-            $group = $this->em->getRepository('PersonalAccountBundle:Group')->find($value->getGroupId());
-
-            $students = $group->getStudents();
-            foreach ($students as $student) {
-                $attendance = new Attendance;
-                $attendance->setStudent($student);
-                $attendance->setGroup($group);
-                $attendance->setPresence(false);
-                $attendance->setExcuse(false);
-                $attendance->setEdited(false);
-                $attendance->setDate(new \DateTime($date));
-                $attendance->setTeacherLesson($value->getTeacherLesson());
-                $attendance->setStartTime($value->getStartTime());
-                $attendance->setEndTime($value->getEndTime());
-                $attendances->add($attendance);
-            }
-        }
-        return $attendances;
-    }*/
-
     public function create($date)
     {
-        //$data = $this->collect_attendances($date);
         $journal = $this->fill_journal($date);
         if ($journal->count() > 0) {
             $this->em->getConnection()->beginTransaction();

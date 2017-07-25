@@ -10,7 +10,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity
- * @ORM\Table(name="teacher_lesson", uniqueConstraints={@UniqueConstraint(name="teacher_lesson_unique", columns={"teacher","lesson","rate"})})
+ * @ORM\Table(name="teacher_lesson", uniqueConstraints={@UniqueConstraint(name="teacher_lesson_unique", columns={"teacher","lesson","rate","title","active"})})
  */
 class TeacherLesson
 {
@@ -28,14 +28,14 @@ class TeacherLesson
 
     /**
      * @ORM\ManyToOne(targetEntity="Lesson")
-     * @ORM\JoinColumn(name="lesson", referencedColumnName="id", onDelete="CASCADE")
+     * @ORM\JoinColumn(name="lesson", referencedColumnName="id")
      * @Assert\Type(type="PersonalAccountBundle\Entity\Lesson")
      * @Assert\Valid()
      */
     protected $lesson;
 
     /**
-     * @ORM\Column(type="string", length=200)
+     * @ORM\Column(type="string", length=100)
      */
     protected $title;
 
@@ -43,6 +43,12 @@ class TeacherLesson
      * @ORM\Column(type="integer", length=100)
      */
     protected $rate;
+
+    /**
+     * @ORM\Column(type="boolean",nullable=true)
+     */
+    protected $active;
+
 
     /**
      * @return mixed
@@ -116,5 +122,19 @@ class TeacherLesson
         $this->lesson = $lesson;
     }
 
+    /**
+     * @return mixed
+     */
+    public function getActive()
+    {
+        return $this->active;
+    }
 
+    /**
+     * @param mixed $active
+     */
+    public function setActive($active)
+    {
+        $this->active = $active;
+    }
 }

@@ -19,3 +19,18 @@
     border: 1px solid #eee;
     padding: 15px;
 }
+.fc {
+    font-size: 1.2em !important;
+}
+input[disabled] {
+    border: 0;
+}
+.form-control[disabled]{
+    background-color: #fff;
+}
+#FormInvoiceModal .form-control {
+    box-shadow: none;
+}
+.fc-event-container {
+    cursor: pointer;
+}
