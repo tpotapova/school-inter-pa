@@ -34,6 +34,11 @@
                         </div>
                         <div class="form_group">
                             <div class="col-md-8 col-md-offset-2">
+                                {{ form_row(form.comission, {'attr': {'class': 'form-control'}}) }}
+                            </div>
+                        </div>
+                        <div class="form_group">
+                            <div class="col-md-8 col-md-offset-2">
                                 {{ form_widget(form.save, { 'label': 'Сохранить' }) }}
                                 {% if form.delete is defined  %}
                                 {{ form_widget(form.delete, { 'label': 'Удалить' }) }}

@@ -6,6 +6,7 @@ namespace PersonalAccountBundle\Form;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\BirthdayType;
+use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -21,8 +22,7 @@ class StudentType extends AbstractType
         $builder
             ->add('name', TextType::class,['label_format' => '%name%',])
             ->add('surname',TextType::class,['label_format' => '%name%',])
-            ->add('birthday',BirthdayType::class, array(
-                 'widget' => 'single_text','label_format' => '%name%'))
+            ->add('birthday',BirthdayType::class,['label_format' => '%name%',])
             ->add('email',EmailType::class)
             ->add('skype',TextType::class)
             ->add('fb_url',UrlType::class, array(

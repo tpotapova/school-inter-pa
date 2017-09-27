@@ -14,7 +14,7 @@ class PresenceCollectorType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder->add('attendance_collection', CollectionType::class, ['entry_type' => PresenceType::class,
-            'label' => 'Список учеников'])
+            'label' => false])
             ->add('save', SubmitType::class);
     }
 

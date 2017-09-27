@@ -115,7 +115,7 @@ class LessonsController extends Controller
     {
         $em = $this->getDoctrine()->getManager();
         $qb = $em->createQueryBuilder('l');
-        $qb->select('tl.id as tl_id, tl.rate as tl_rate, tl.title as tl_title,l.name as l_name,t.surname as t_surname, t.name as t_name')
+        $qb->select('tl.id as tl_id, tl.rate as tl_rate, tl.comission as tl_comission, tl.title as tl_title,l.name as l_name,t.surname as t_surname, t.name as t_name')
             ->from('PersonalAccountBundle:TeacherLesson','tl')
             ->join('PersonalAccountBundle:Lesson','l','with','tl.lesson = l.id')
             ->join('PersonalAccountBundle:Teacher','t','with','tl.teacher = t.id')

@@ -37,10 +37,6 @@ class Presence
      */
     protected $presence;
 
-    /**
-     * @ORM\Column(type="boolean",nullable=true)
-     */
-    protected $excuse;
 
     /**
      * @return mixed
@@ -99,20 +95,6 @@ class Presence
         $this->presence = $presence;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getExcuse()
-    {
-        return $this->excuse;
-    }
 
-    /**
-     * @param mixed $excuse
-     */
-    public function setExcuse($excuse)
-    {
-        $this->excuse = $excuse;
-    }
 
 }

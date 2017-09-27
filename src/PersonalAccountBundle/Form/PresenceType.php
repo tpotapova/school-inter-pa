@@ -15,8 +15,8 @@ class PresenceType extends AbstractType
     {
         $builder
             ->add ('student', TextType::class, ['disabled' => true])
-            ->add('presence', CheckboxType::class, ['label' => false,'required' => false])
-            ->add('excuse', CheckboxType::class, ['required' => false, 'label' => false]);
+            ->add('presence', CheckboxType::class, ['label' => false,'required' => false]);
+
     }
     public function getName()
     {

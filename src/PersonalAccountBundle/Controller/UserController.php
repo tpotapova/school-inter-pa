@@ -22,7 +22,7 @@ class UserController extends Controller
     public function showTeachersAction(Request $request)
     {
         $em = $this->getDoctrine()->getManager();
-        $result = $em->getRepository('PersonalAccountBundle:Teacher')->findBy(['active' => true]);
+        $result = $em->getRepository('PersonalAccountBundle:Teacher')->findBy(['active'=> true]);
         $form = $this->createFormBuilder()
             ->add('teacher', EntityType::class,  [
                 'class' => Teacher::class,
@@ -71,7 +71,7 @@ class UserController extends Controller
     public function showStudentsAction(Request $request)
     {
         $em = $this->getDoctrine()->getManager();
-        $result = $em->getRepository('PersonalAccountBundle:Student')->findBy(['active' => true]);
+        $result = $em->getRepository('PersonalAccountBundle:Student')->findBy(['active'=> true]);
         $form = $this->createFormBuilder()
             ->add('student', EntityType::class,  [
                 'class' => Student::class,

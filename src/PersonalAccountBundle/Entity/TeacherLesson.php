@@ -45,6 +45,11 @@ class TeacherLesson
     protected $rate;
 
     /**
+     * @ORM\Column(type="integer", length=100)
+     */
+    protected $comission;
+
+    /**
      * @ORM\Column(type="boolean",nullable=true)
      */
     protected $active;
@@ -136,5 +141,20 @@ class TeacherLesson
     public function setActive($active)
     {
         $this->active = $active;
+    }
+    /**
+     * @return mixed
+     */
+    public function getComission()
+    {
+        return $this->comission;
+    }
+
+    /**
+     * @param mixed $comission
+     */
+    public function setComission($comission)
+    {
+        $this->comission = $comission;
     }
 }

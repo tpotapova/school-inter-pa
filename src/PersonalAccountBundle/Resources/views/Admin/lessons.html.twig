@@ -8,6 +8,7 @@
             <th>Категория (предмет)</th>
             <th>Учитель</th>
             <th>Тариф</th>
+            <th>Комиссия</th>
         </tr>
         </thead>
         <tbody>
@@ -17,6 +18,7 @@
                 <td>{{ value['l_name'] }}</td>
                 <td>{{ value['t_surname'] ~ ' ' ~ value['t_name'] }}</td>
                 <td>{{ value['tl_rate'] }}</td>
+                <td>{{ value['tl_comission'] }}</td>
             </tr>
         {% endfor %}
         </tbody>

@@ -57,12 +57,7 @@ class Attendance
      */
     protected $presence;
 
-    /**
-     * @ORM\Column(type="boolean",nullable=true)
-     */
-    protected $excuse;
-
-    /**
+     /**
      * @ORM\Column(type="boolean",nullable=true)
      */
     protected $edited;
@@ -171,21 +166,7 @@ class Attendance
         $this->presence = $presence;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getExcuse()
-    {
-        return $this->excuse;
-    }
 
-    /**
-     * @param mixed $excuse
-     */
-    public function setExcuse($excuse)
-    {
-        $this->excuse = $excuse;
-    }
     /**
      * @return mixed
      */

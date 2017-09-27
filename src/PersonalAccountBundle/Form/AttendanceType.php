@@ -24,8 +24,8 @@ class AttendanceType extends AbstractType
         ->add('edited',HiddenType::class)
         ->add('id', HiddenType::class)
         ->add ('student', TextType::class, ['disabled' => true])
-        ->add('presence', CheckboxType::class, ['data' => true, 'label' => false,'required' => false])
-        ->add('excuse', CheckboxType::class, ['required' => false, 'label' => false]);
+        ->add('presence', CheckboxType::class, ['data' => true, 'label' => false,'required' => false]);
+        //->add('excuse', CheckboxType::class, ['required' => false, 'label' => false]);
         //->add('date', HiddenType::class)
         //->add('teacher_lesson', HiddenType::class)
         //->add('start_time', HiddenType::class);

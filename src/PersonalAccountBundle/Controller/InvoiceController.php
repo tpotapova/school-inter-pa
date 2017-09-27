@@ -90,6 +90,10 @@ class InvoiceController extends Controller
         $student_presences = $manager->get_lesson_invoice_by_student($lesson_presences);
         $formatted_student_presences = $manager->format_lesson_invoice_by_student($student_presences);
         $lesson_total = $lesson_rate * (count($lesson_presences));
+        //Add lesson comission
+        $comission = $manager->get_lesson_by_id($lesson_id)->getComission();
+        $lesson_comission = $comission * (count($lesson_presences));
+        $teacher_payment = $lesson_total - $lesson_comission;
         $invoice = new Invoice();
         $em = $this->getDoctrine()->getManager();
         $redirect_url = $this->get('router')->generate('invoices');
@@ -111,6 +115,8 @@ class InvoiceController extends Controller
         }
         return $this->render('PersonalAccountBundle:Admin:invoice.html.twig', [
         'lesson_total' => $lesson_total,
+        'teacher_payment' => $teacher_payment,
+        'lesson_comission' => $lesson_comission,
         'student_presences' => $formatted_student_presences,
         'lesson_rate' => $lesson_rate,
         'unedited' => $unedited,

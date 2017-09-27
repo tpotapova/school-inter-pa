@@ -114,6 +114,7 @@ class IndexController extends Controller
             // Save
             $em = $this->getDoctrine()->getManager();
             $teacher->setUserID($em->getRepository('PersonalAccountBundle:User')->find($user_id));
+			$teacher->setActive(true);
             $em->persist($teacher);
             $em->flush();
             return $this->redirectToRoute('teacher');

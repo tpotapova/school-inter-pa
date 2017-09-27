@@ -25,6 +25,7 @@ class TeacherLessonType extends AbstractType
     {
         $builder->add('title', TextType::class, ['label_format' => '%name%'])
             ->add('rate', IntegerType::class,['label_format' => '%name%'])
+            ->add('comission', IntegerType::class,['data' => 50, 'label_format' => '%name%'])
             ->add('save', SubmitType::class,['attr' => ['class' => 'btn-primary']])
             ->add(
                 'teacher',
