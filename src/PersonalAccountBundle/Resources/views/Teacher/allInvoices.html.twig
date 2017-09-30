@@ -7,7 +7,7 @@
             <th>Предмет</th>
             <th>Начальная дата (год-месяц-день)</th>
             <th>Конечная дата (год-месяц-день)</th>
-            <th>Сумма к оплате (руб.)</th>
+            <th>Сумма(руб.)</th>
             <th>Оплачено</th>
         </tr>
         </thead>
@@ -17,7 +17,7 @@
                 <td>{{ value["l_title"]}}</td>
                 <td>{{ value["i_from"] ? value["i_from"]|date('Y-m-d')}}</td>
                 <td>{{ value["i_to"]|date('Y-m-d')}}</td>
-                <td>{{ value["i_total"]}}</td>
+                <td>{{ value["i_total"] - value["i_lesson_comission"]}}</td>
                 <td>{{ value["i_payed"] ? 'да': 'нет'}}</td>
             </tr>
         {% endfor %}

@@ -8,6 +8,8 @@
             <th>Начальная дата (год-месяц-день)</th>
             <th>Конечная дата (год-месяц-день)</th>
             <th>Сумма к оплате (руб.)</th>
+            <th>Оплата учителю</th>
+            <th>Комиссия</th>
             <th>Оплачено</th>
         </tr>
         </thead>
@@ -18,6 +20,8 @@
             <td>{{ value["i_from_date"] ? value["i_from_date"]|date('Y-m-d')}}</td>
             <td>{{ value["i_to_date"]|date('Y-m-d')}}</td>
             <td>{{ value["i_total"]}}</td>
+            <td>{{ value["i_total"] - value["i_lesson_comission"] }}</td>
+            <td>{{ value["i_lesson_comission"]}}</td>
             <td>{{ value["i_payed"] ? 'да': 'нет'}}</td>
         </tr>
         {% endfor %}

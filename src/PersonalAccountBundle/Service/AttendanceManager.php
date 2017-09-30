@@ -60,7 +60,6 @@ class AttendanceManager
                 $presence->setStudent($student);
                 $presence->setJournalId($j);
                 $presence->setPresence(false);
-                $presence->setExcuse(false);
                 $presences->add($presence);
             }
         }
@@ -84,7 +83,5 @@ class AttendanceManager
             $this->add($presence);
             $this->em->getConnection()->commit();
         }
-
     }
-
 }

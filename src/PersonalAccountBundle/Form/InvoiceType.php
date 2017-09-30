@@ -19,6 +19,7 @@ class InvoiceType extends AbstractType
             ->add('from_date', HiddenType::class)
             ->add('to_date', HiddenType::class)
             ->add('total', HiddenType::class)
+            ->add('lesson_comission', HiddenType::class)
             ->add('save', SubmitType::class, array(
                 'attr' => array('class' => 'btn-success'),
             ));

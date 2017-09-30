@@ -114,7 +114,7 @@ class InvoiceManager
     }
     public function show_all_student_invoices($student_id) {
         $qb = $this->em->createQueryBuilder();
-        $qb->select('i.from_date i_from, i.to_date i_to,l.title l_title,s.total s_total, s.payed s_payed')
+        $qb->select('i.from_date i_from, i.to_date i_to,l.title l_title, s.total s_total, s.payed s_payed')
             ->from('PersonalAccountBundle:Invoice','i')
             ->join ('PersonalAccountBundle:StudentInvoice','s', 'with','i.id = s.invoice_id')
             ->join('PersonalAccountBundle:TeacherLesson','l','with','i.teacher_lesson = l.id')
@@ -126,7 +126,7 @@ class InvoiceManager
 
     public function show_all_teacher_invoices($teacher_id) {
         $qb = $this->em->createQueryBuilder();
-        $qb->select('i.from_date i_from, i.to_date i_to,i.total i_total, i.payed i_payed, l.title l_title')
+        $qb->select('i.from_date i_from, i.to_date i_to,i.total i_total, i.payed i_payed, i.lesson_comission i_lesson_comission, l.title l_title')
             ->from('PersonalAccountBundle:Invoice','i')
             ->join('PersonalAccountBundle:TeacherLesson','l','with','i.teacher_lesson = l.id')
             ->where ('l.teacher = :teacher_id')

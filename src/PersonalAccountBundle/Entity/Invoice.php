@@ -48,6 +48,11 @@ class Invoice
     protected  $total;
 
     /**
+     * @ORM\Column (type="integer", length=100)
+     */
+    protected  $lesson_comission;
+
+    /**
      * @ORM\Column(type="boolean")
      */
     protected $payed;
@@ -139,5 +144,19 @@ class Invoice
         $this->payed = $payed;
     }
 
+    /**
+     * @return mixed
+     */
+    public function getLessonComission()
+    {
+        return $this->lesson_comission;
+    }
 
+    /**
+     * @param mixed $lesson_comission
+     */
+    public function setLessonComission($lesson_comission)
+    {
+        $this->lesson_comission = $lesson_comission;
+    }
 }

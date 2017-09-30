@@ -105,6 +105,7 @@ class InvoiceController extends Controller
             $invoice->setTeacherLesson($em->getRepository('PersonalAccountBundle\Entity\TeacherLesson')
                                             ->findOneById($lesson_id));
             $invoice->setTotal($lesson_total);
+            $invoice->setLessonComission($lesson_comission);
             $invoice->setPayed(false);
             if ($form->isValid()) {
                 $em->persist($invoice);
@@ -149,6 +150,8 @@ class InvoiceController extends Controller
         $invoice = $em->getRepository('PersonalAccountBundle\Entity\Invoice')->find($id);
         $invoices = $em->getRepository('PersonalAccountBundle\Entity\StudentInvoice')->findBy(['invoice_id' => $id]);
         $invoice_title = $invoice->getTeacherLesson()->getTitle();
+        $l_comission = $invoice->getTeacherLesson()->getComission();
+        $l_rate = $invoice->getTeacherLesson()->getRate();
         $from_date = $invoice->getFromDate() ? $invoice->getFromDate()->format('d-m-Y') : '';
         $to_date = $invoice->getToDate()->format('d-m-Y');
         $collector = new StudentInvoiceCollector();
@@ -193,6 +196,8 @@ class InvoiceController extends Controller
         }
         return $this->render('PersonalAccountBundle:Admin:invoiceDetails.html.twig', [
             'student_invoices'=>$student_invoices,
+            'l_comission' => $l_comission,
+            'l_rate' => $l_rate,
             'invoice_title' => $invoice_title,
             'from_date' => $from_date,
             'to_date' => $to_date,
