@@ -13,7 +13,7 @@
         <th>Сумма к оплате (руб.)</th>
         <th>Комиссия</th>
         <th>Оплата учителю</th>
-        <th>Оплачено</th>
+        <!--<th>Оплачено</th>-->
     </tr>
     </thead>
     <tbody>
@@ -28,7 +28,7 @@
             <td>{% set student_comission = (value['s_i_total']/l_rate) * l_comission %}
                 {{ student_comission }}</td>
             <td>{{ value['s_i_total'] - student_comission }}</td>
-            <td class="paid-view">{{ value['s_i_payed'] ? 'да': 'нет' }}</td>
+            <!--<td class="paid-view">{{ value['s_i_payed'] ? 'да': 'нет' }}</td>-->
         </tr>
     {% endfor %}
     </tbody>

@@ -8,7 +8,7 @@
             <th>Начальная дата (год-месяц-день)</th>
             <th>Конечная дата (год-месяц-день)</th>
             <th>Сумма к оплате (руб.)</th>
-            <th>Оплачено</th>
+            <!--<th>Оплачено</th>-->
         </tr>
         </thead>
         <tbody>
@@ -18,7 +18,7 @@
                 <td>{{ value["i_from"] ? value["i_from"]|date('Y-m-d')}}</td>
                 <td>{{ value["i_to"]|date('Y-m-d')}}</td>
                 <td>{{ value["s_total"]}}</td>
-                <td>{{ value["s_payed"] ? 'да': 'нет'}}</td>
+                <!--<td>{{ value["s_payed"] ? 'да': 'нет'}}</td>-->
             </tr>
         {% endfor %}
         </tbody>

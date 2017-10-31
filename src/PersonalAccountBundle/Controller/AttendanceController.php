@@ -48,6 +48,165 @@ class AttendanceController extends Controller
             'events_load_url' => $events_load_url,
             ]);
     }
+    //Add different route for teacher to mark attendances of specific lesson
+
+    /**
+     * @Route("/choose_lesson", name="choose_lesson")
+     * @Security("has_role('ROLE_ADMIN')")
+     */
+    public function chooseTeacherLessonAction(Request $request)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $authUser = $this->get('security.token_storage')->getToken()->getUser();
+        $teacher = $em->getRepository('PersonalAccountBundle:Teacher')->findOneBy(['user_id' => $authUser->getId()]);
+        if (!$teacher or !($teacher->getActive())) {
+            throw $this->createNotFoundException('Преподаватель не найден');
+        };
+        if ($teacher->getUserId()->getId() !== $authUser->getId()) {
+            throw $this->createAccessDeniedException('Преподаватель не авторизован');
+        }
+        $lessons = $em->getRepository('PersonalAccountBundle:TeacherLesson')->findBy(['teacher' => $teacher, 'active' => true]);
+        if (!$lessons){
+            throw $this->createNotFoundException('Занятия не найдены');
+            return;
+        }
+        return $this->render('PersonalAccountBundle:Teacher:lessonChoose.html.twig',[
+            'result' => $lessons,
+            'teacher_id' => $teacher->getId(),
+        ]);
+    }
+    /**
+     * @Route ("{teacher_id}/{lesson_id}/attendances/", name="attendances")
+     * @Security("has_role('ROLE_ADMIN')")
+     */
+    public function showSchedule2Action($lesson_id, $teacher_id, Request $request)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $authUser = $this->get('security.token_storage')->getToken()->getUser();
+        $teacher = $em->getRepository('PersonalAccountBundle:Teacher')->findOneBy(['user_id' => $authUser->getId()]);
+        if (!$teacher or !($teacher->getActive())) {
+            throw $this->createNotFoundException('Преподаватель не найден');
+        }
+        if ($teacher_id != $teacher->getId()) {
+            throw $this->createAccessDeniedException('Доступ запрещен');
+        }
+        $show_modal = 'false';
+        $router = $this->get('router');
+        $events_load_url = $router->generate('json_l', ['teacher_id' => $teacher_id,'lesson_id' => $lesson_id]);
+
+        return $this->render('PersonalAccountBundle:Teacher:a1.html.twig', ['show_modal' => $show_modal,
+            'lesson_id' => $lesson_id,
+            'teacher_id' => $teacher_id,
+            'events_load_url' => $events_load_url,
+        ]);
+    }
+    /**
+     * @Route("{teacher_id}/{lesson_id}/json_l_events/", name="json_l")
+     * @Security("has_role('ROLE_ADMIN')")
+     */
+    public function showJsonLAction($lesson_id,$teacher_id, Request $request)
+    {
+        $lesson_id = intval($lesson_id,10);
+        $teacher_id = intval($teacher_id,10);
+        $events = $this->getEventsData($lesson_id,$teacher_id);
+        $response = new JsonResponse($events);
+        return $response;
+    }
+    protected function getEventsData($lesson_id, $teacher_id)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $scheduleQueryBuilder = $em
+            ->getRepository('PersonalAccountBundle:Journal')
+            ->createQueryBuilder('e')
+            ->join('e.teacher_lesson', 't')
+            ->where('t.teacher = :teacher_id')
+            ->andwhere('t.id = :lesson_id');
+        $scheduleQueryBuilder
+            ->setParameter('teacher_id', $teacher_id)
+            ->setParameter('lesson_id', $lesson_id);
+        $result = $scheduleQueryBuilder
+            ->getQuery()
+            ->getResult();
+        $event_data = [];
+        foreach($result as $value){
+            $d = $value->getDate();
+            $start = $value->getStartTime();
+            $end = $value->getEndTime();
+            $edited = $value->getEdited();
+            $counterAttendances = 0;
+            if ($edited){
+                $attendances = $em->getRepository('PersonalAccountBundle\Entity\Presence')->findBy(array('journal_id' => $value->getId(), 'presence' => true));
+                $counterAttendances = count($attendances);
+            }
+            $event_data[] = [
+                "title"=>"Группа ".$value->getGroup()->getName()."<br/>Кол-во учеников: ".$counterAttendances,
+                "start" => $d->format('Y-m-d') .' ' .$start->format('H:i:s'),
+                "end" => $d->format('Y-m-d') .' ' .$end->format('H:i:s'),
+                "allDay"=>false,
+                "id"=>$value->getId(),
+                "title_id"=>$value->getTeacherLesson()->getId(),
+                "teacher_lesson"=>$value->getTeacherLesson(),
+                "color" => ($value->getEdited()) ? 'green' : 'blue',
+                "url" => $this->get('router')->generate('edit_attendances', ['lesson_id' => $lesson_id,
+                    'teacher_id' => $teacher_id, 'journal_id' => $value->getId()]),
+            ];
+        }
+        return $event_data;
+    }
+
+    /**
+     * @Route("{teacher_id}/{lesson_id}/{journal_id}/attendances", name="edit_attendances")
+     * @Security("has_role('ROLE_ADMIN')")
+     */
+    public function editAttendancesAction($lesson_id, $teacher_id, $journal_id, Request $request)
+    {
+
+        $em = $this->getDoctrine()->getManager();
+        $authUser = $this->get('security.token_storage')->getToken()->getUser();
+        $teacher = $em->getRepository('PersonalAccountBundle:Teacher')->findOneBy(['user_id' => $authUser->getId()]);
+        if (!$teacher or !($teacher->getActive())) {
+            throw $this->createNotFoundException('Преподаватель не найден');
+        }
+        if ($teacher_id != $teacher->getId()) {
+            throw $this->createAccessDeniedException('Доступ запрещен');
+        }
+        $show_modal = 'true';
+        $attendances = $em->getRepository('PersonalAccountBundle\Entity\Presence')->findBy(array('journal_id' => $journal_id));
+        $journal = $em->getRepository('PersonalAccountBundle\Entity\Journal')->find($journal_id);
+        $modal_title = $journal->getTeacherLesson()->getTitle();
+        $date_caption = $journal->getDate();
+        $start_time = $journal->getStartTime();
+        $collector = new AttendanceCollector();
+        $collector->setAttendanceCollection($attendances);
+        $form = $this->createForm(PresenceCollectorType::class, $collector);
+        $form->handleRequest($request);
+        $redirect_url = $this->get('router')->generate('attendances', ['lesson_id' => $lesson_id,'teacher_id'=>$teacher_id]);
+        $events_load_url = $this->get('router')->generate('json_l', ['lesson_id' => $lesson_id, 'teacher_id'=>$teacher_id]);
+        if ($form->get('save')->isClicked()) {
+            if ($form->isValid()) {
+                $journal = $em->getRepository('PersonalAccountBundle\Entity\Journal')->find($journal_id);
+                $journal->setEdited(true);
+                foreach ($attendances as $attendance) {
+                    $attendance->setJournalId($journal);
+
+                    $em->persist($attendance);
+                }
+                $em->flush();
+            }
+
+            return $this->redirect($redirect_url);
+
+        }
+        return $this->render('PersonalAccountBundle:Teacher:attendance.html.twig', [
+            'form' => $form->createView(),
+            'show_modal' => $show_modal,
+            'events_load_url' => $events_load_url,
+            'modal_title' => $modal_title,
+            'date_caption' => $date_caption,
+            'start_time' => $start_time,
+        ]);
+    }
+
 
     /**
      * @Route ("{group_id}/attendance/", name="all_attendances")

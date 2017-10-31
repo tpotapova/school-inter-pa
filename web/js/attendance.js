@@ -11,6 +11,8 @@ $(document).ready(function() {
         timeFormat: 'H:mm',
         eventRender: function(event, element) {
             element[0].removeAttribute('href');
+            var title = element.find( '.fc-title' );
+            title.html( title.text() );
         },
 
         eventClick: function(event) {

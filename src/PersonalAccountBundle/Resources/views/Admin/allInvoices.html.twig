@@ -10,7 +10,7 @@
             <th>Сумма к оплате (руб.)</th>
             <th>Оплата учителю</th>
             <th>Комиссия</th>
-            <th>Оплачено</th>
+            <!--<th>Оплачено</th>-->
         </tr>
         </thead>
         <tbody>
@@ -22,7 +22,7 @@
             <td>{{ value["i_total"]}}</td>
             <td>{{ value["i_total"] - value["i_lesson_comission"] }}</td>
             <td>{{ value["i_lesson_comission"]}}</td>
-            <td>{{ value["i_payed"] ? 'да': 'нет'}}</td>
+            <!--<td>{{ value["i_payed"] ? 'да': 'нет'}}</td>-->
         </tr>
         {% endfor %}
         </tbody>
