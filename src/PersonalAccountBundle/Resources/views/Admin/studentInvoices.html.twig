@@ -1,0 +1,52 @@
+{% extends 'PersonalAccountBundle:Admin:base.html.twig' %}
+{% block body %}
+    <h3>Счета</h3>
+    <table id="student_grouped_invoices" class="table table-striped table-bordered table-hover ">
+        <thead class="thead-inverse">
+        <tr>
+            <th>Ученик</th>
+            <th>Рассчетный период (начало)</th>
+            <th>Рассчетный период (конец)</th>
+            <th>Сумма к оплате (руб.)</th>
+            <th>Список предметов(кол-во посещений)</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for value in result %}
+
+            <tr>
+                <td>{{ value['student_full_name'] }}</td>
+                <td>{{ value['from_date']}}</td>
+                <td>{{ value['to_date'] }}</td>
+                <td>{{ value['total'] }}</td>
+                <td>{{ value['details']}}</td>
+
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <hr>
+    <a href="/my_invoices"> << Назад к списку счетов</a>
+
+{% endblock %}
+{% block javascripts %}
+    <script src ="{{ asset('js/jquery.dataTables.min.js') }}"></script>
+    <script>
+        $(document).ready(function() {
+            $('#student_grouped_invoices').DataTable({
+                ordering: true,
+                order: [2, "desc" ],
+                iDisplayLength: 100,
+                columnDefs : [
+                    { type : 'date', targets : [1,2],orderSequence: ["desc", "asc"], }
+                ],
+            });
+        });
+    </script>
+{% endblock %}
+{% block stylesheets %}
+    {{ parent() }}
+
+    <link href="{{ asset('/css/jquery.dataTables.min.css') }}" rel="stylesheet">
+{% endblock %}

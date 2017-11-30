@@ -34,8 +34,7 @@ class InvoiceController extends Controller
     public function chooseInvoiceParamsAction(Request $request)
     {
         date_default_timezone_set( 'Europe/Moscow' );
-        $defaultData = array('date' => new \DateTime(date('Y-m-d')));
-        $form = $this->createFormBuilder($defaultData)
+        $form = $this->createFormBuilder()
             ->add('teacher_lesson', EntityType::class,  [
                 'label_format' => '%name%',
                 'required' => true,
@@ -47,14 +46,15 @@ class InvoiceController extends Controller
                         ->where('e.active = true');
                 },
             ])
-            ->add('date', DateType::class,  ['widget' => 'single_text','label' => 'Выберите дату','required'=>true])
+            ->add('startDate', DateType::class,  ['widget' => 'single_text','label' => 'Начало рассчетного периода','required'=>true])
+            ->add('endDate', DateType::class,  ['widget' => 'single_text','label' => 'Конец рассчетного периода','required'=>true])
             ->add('make', SubmitType::class,  ['attr' => ['class' => 'btn-primary']])
             ->getForm();
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
             $redirect_url = $this->get('router')->generate('lesson_invoice', ['lesson_id'=>$data['teacher_lesson']->getId(),
-                'date' => $data['date']->format('d-m-Y')]);
+                'startDate' => $data['startDate']->format('d-m-Y'), 'endDate' => $data['endDate']->format('d-m-Y')]);
             return $this->redirect($redirect_url);
         }
 
@@ -62,15 +62,66 @@ class InvoiceController extends Controller
             'form'=>$form->createView(),
            ]);
     }
-
     /**
-     * @Route("{lesson_id}/{date}/lesson_invoice", name="lesson_invoice")
+     * @Route("/grouped_student_invoices/{startDate}/{endDate}", name="grouped_student_invoices")
      * @Security("has_role('ROLE_SUPER_ADMIN')")
      */
-    public function showInvoiceAction($lesson_id, $date, Request $request)
+    public function showGroupedStudentInvoices($startDate, $endDate, Request $request)
+    {
+        $manager = $this->container->get('app.invoice_manager');
+        $result = $manager->show_grouped_student_invoices($startDate,$endDate);
+        return $this->render('PersonalAccountBundle:Admin:studentInvoices.html.twig',['result' => $result]);
+    }
+    /**
+     * @Route("/invoice_params_2", name="invoice_params_2")
+     * @Security("has_role('ROLE_SUPER_ADMIN')")
+     */
+    // TODO: Make multiple choice for lesson invoices
+    public function chooseInvoiceParams2Action(Request $request)
+    {
+        date_default_timezone_set( 'Europe/Moscow' );
+        $form = $this->createFormBuilder()
+            ->add('teacher_lesson', EntityType::class,  [
+                'label_format' => '%name%',
+                'required' => true,
+                'class' => TeacherLesson::class,
+                'choice_label' => 'title',
+                'multiple' => true,
+                'expanded'=>true,
+                'choice_attr' => function() {
+                    return ['checked' => 'checked'];
+                },
+                'query_builder' => function ($repository) {
+                    return $repository
+                        ->createQueryBuilder('e')
+                        ->where('e.active = true');
+                },
+            ])
+            ->add('startDate', DateType::class,  ['widget' => 'single_text','label' => 'Начало рассчетного периода','required'=>true])
+            ->add('endDate', DateType::class,  ['widget' => 'single_text','label' => 'Конец рассчетного периода','required'=>true])
+            ->add('make', SubmitType::class,  ['attr' => ['class' => 'btn-primary']])
+            ->getForm();
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $data = $form->getData();
+            $redirect_url = $this->get('router')->generate('lesson_invoice', ['lesson_id'=>$data['teacher_lesson']->getId(),
+                'startDate' => $data['startDate']->format('d-m-Y'), 'endDate' => $data['endDate']->format('d-m-Y')]);
+            return $this->redirect($redirect_url);
+        }
+
+        return $this->render('PersonalAccountBundle:Admin:invoiceParams.html.twig', [
+            'form'=>$form->createView(),
+        ]);
+    }
+
+    /**
+     * @Route("{lesson_id}/{startDate}/{endDate}/lesson_invoice", name="lesson_invoice")
+     * @Security("has_role('ROLE_SUPER_ADMIN')")
+     */
+    public function showInvoiceAction($lesson_id, $startDate, $endDate, Request $request)
     {
         $manager= $this->container->get('app.invoice_manager');
-        $result = $manager->get_lesson_invoice($lesson_id,$date);
+        $result = $manager->get_lesson_invoice($lesson_id,$startDate, $endDate);
         $unedited = [];
         $edited = [];
         foreach($result as $r){
@@ -79,7 +130,7 @@ class InvoiceController extends Controller
                 array_push($edited, $r->getId());
             }
             else {
-                array_push($unedited, [$r->getDate()->format('d-m-Y'),$r->getStartTime()->format('H.i')]);
+                array_push($unedited, [$r->getDate()->format('d-m-Y'), '(группа', $r->getGroup()->getName().')']);
             }
         };
         $last_invoice = $manager->get_lesson_last_invoice($lesson_id);
@@ -96,12 +147,12 @@ class InvoiceController extends Controller
         $teacher_payment = $lesson_total - $lesson_comission;
         $invoice = new Invoice();
         $em = $this->getDoctrine()->getManager();
-        $redirect_url = $this->get('router')->generate('invoices');
+        $redirect_url = $this->get('router')->generate('myinvoices');
         $form = $this->createForm(InvoiceType::class, $invoice);
         $form->handleRequest($request);
         if ($form->get('save')->isClicked()) {
-            $invoice->setFromDate($last_invoice ? new \DateTime(date("Y-m-d", strtotime($last_invoice))) : $last_invoice );
-            $invoice->setToDate(new \DateTime(date("Y-m-d", strtotime($date))));
+            $invoice->setFromDate(new \DateTime(date("Y-m-d", strtotime($startDate))));
+            $invoice->setToDate(new \DateTime(date("Y-m-d", strtotime($endDate))));
             $invoice->setTeacherLesson($em->getRepository('PersonalAccountBundle\Entity\TeacherLesson')
                                             ->findOneById($lesson_id));
             $invoice->setTotal($lesson_total);
@@ -122,7 +173,8 @@ class InvoiceController extends Controller
         'lesson_rate' => $lesson_rate,
         'unedited' => $unedited,
         'last_invoice_date' => $last_invoice_date,
-        'current_invoice_date' => $date,
+        'start_invoice_date' => $startDate,
+        'current_invoice_date' => $endDate,
         'lesson_title' => $lesson_title,
         'form' => $form->createView(),
     ]);
@@ -138,6 +190,33 @@ class InvoiceController extends Controller
 
         return $this->render('PersonalAccountBundle:Admin:allInvoices.html.twig',['invoices' => $invoices,]);
     }
+    /**
+     * @Route("/my_invoices", name="myinvoices")
+     * @Security("has_role('ROLE_SUPER_ADMIN')")
+     */
+    //TODO: show invoices dates list, make detailed invoices view by date
+    public function showMyInvoicesAction(Request $request)
+    {
+
+        $manager = $this->container->get('app.invoice_manager');
+        $invoices = $manager->show_my_invoices();
+
+        return $this->render('PersonalAccountBundle:Admin:myInvoices.html.twig',['invoices' => $invoices,]);
+    }
+    /**
+     * @Route("/my_invoices/{startDate}/{endDate}", name="myinvoices_by_dates")
+     * @Security("has_role('ROLE_SUPER_ADMIN')")
+     */
+    public function showMyInvoicesByDatesAction($startDate, $endDate,Request $request){
+
+        $manager = $this->container->get('app.invoice_manager');
+        $invoices = $manager->show_my_invoices_by_dates($startDate, $endDate);
+
+        return $this->render('PersonalAccountBundle:Admin:allInvoices.html.twig',['invoices' => $invoices,
+            'startDate'=>$startDate,'endDate'=>$endDate]);
+
+    }
+
     /**
      * @Route("/invoices/{id}", name="invoice_details")
      * @Security("has_role('ROLE_SUPER_ADMIN')")
@@ -185,7 +264,7 @@ class InvoiceController extends Controller
                     ->add('delete', SubmitType::class, array('attr' => ['class' => 'btn-danger']))
                     ->getForm();
         $form->handleRequest($request);
-        $redirect_url = $this->get('router')->generate('invoices');
+        $redirect_url = $this->get('router')->generate('myinvoices');
         if ($form->get('delete')->isClicked()){
             foreach ($invoices as $i) {
                 $em->remove($i);

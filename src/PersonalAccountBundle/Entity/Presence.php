@@ -37,7 +37,6 @@ class Presence
      */
     protected $presence;
 
-
     /**
      * @return mixed
      */
@@ -94,7 +93,5 @@ class Presence
     {
         $this->presence = $presence;
     }
-
-
 
 }

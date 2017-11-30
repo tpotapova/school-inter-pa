@@ -1,43 +1,43 @@
 {% extends 'PersonalAccountBundle:Admin:base.html.twig' %}
 {% block body %}
-    <a href="/grouped_student_invoices/{{startDate?startDate:'0'}}/{{endDate}}" class="btn btn-lg btn-info">По ученикам</a>
-    </a>
     <h2>Все счета</h2>
-    <table id="all_invoices" class="table table-striped table-bordered table-hover">
+    <table id="my_invoices" class="table table-striped table-bordered table-hover">
         <thead class="thead-inverse">
         <tr>
-            <th>Предмет</th>
+            <th>Название</th>
             <th>Начальная дата (год-месяц-день)</th>
             <th>Конечная дата (год-месяц-день)</th>
             <th>Сумма к оплате (руб.)</th>
-            <th>Оплата учителю</th>
-            <th>Комиссия</th>
-            <!--<th>Оплачено</th>-->
+            <th>Оплата учителям</th>
+            <th>Итоговая комиссия</th>
         </tr>
         </thead>
         <tbody>
         {% for value in invoices %}
-        <tr>
-            <td><a href="/invoices/{{ value["i_id"]}}">{{ value["l_title"]}}</a></td>
-            <td>{{ value["i_from_date"] ? value["i_from_date"]|date('Y-m-d')}}</td>
-            <td>{{ value["i_to_date"]|date('Y-m-d')}}</td>
-            <td>{{ value["i_total"]}}</td>
-            <td>{{ value["i_total"] - value["i_lesson_comission"] }}</td>
-            <td>{{ value["i_lesson_comission"]}}</td>
-            <!--<td>{{ value["i_payed"] ? 'да': 'нет'}}</td>-->
-        </tr>
+            <tr>
+                <td>
+                    <a href="/my_invoices/{{ value["mi_from_date"] ? value["mi_from_date"]|date('Y-m-d'): '0'}}/{{ value["mi_to_date"]|date('Y-m-d')}}">
+                        Счета за период c {{ value["mi_from_date"] ? value["mi_from_date"]|date('Y-m-d')}} по
+                        {{ value["mi_to_date"]|date('Y-m-d')}}
+                    </a>
+                </td>
+                <td>{{ value["mi_from_date"] ? value["mi_from_date"]|date('Y-m-d')}}</td>
+                <td>{{ value["mi_to_date"]|date('Y-m-d')}}</td>
+                <td>{{ value["sum_total"]}}</td>
+                <td>{{ value["sum_total"] - value["comission_total"] }}</td>
+                <td>{{ value["comission_total"]}}</td>
+            </tr>
         {% endfor %}
         </tbody>
     </table>
     <hr>
-    <p><a href="/my_invoices"> << Назад к списку счетов</a></p>
     <a href="/invoice_params" class="btn btn-primary">Сформировать новый счет</a>
 {% endblock %}
 {% block javascripts %}
     <script src ="{{ asset('js/jquery.dataTables.min.js') }}"></script>
     <script>
         $(document).ready(function() {
-            $('#all_invoices').DataTable({
+            $('#my_invoices').DataTable({
                 ordering: true,
                 order: [2, "desc" ],
                 iDisplayLength: 50,

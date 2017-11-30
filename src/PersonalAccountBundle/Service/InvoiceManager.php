@@ -5,6 +5,9 @@ namespace PersonalAccountBundle\Service;
 use Doctrine\ORM\EntityManager;
 use PersonalAccountBundle\Entity\Invoice;
 use PersonalAccountBundle\Entity\StudentInvoice;
+use Doctrine\ORM\Query\ResultSetMapping;
+use Symfony\Component\Validator\Constraints\DateTime;
+
 
 class InvoiceManager
 {
@@ -14,18 +17,17 @@ class InvoiceManager
     {
         $this->em = $em;
     }
-    public function get_lesson_invoice($lesson_id,$somedate)
+    public function get_lesson_invoice($lesson_id,$startDate, $endDate)
     {
-        $current = date('Y-m-d', strtotime($somedate));
-        $lastInvoiceDate = $this->get_lesson_last_invoice($lesson_id);
-        $last =  $lastInvoiceDate ? $lastInvoiceDate : date('Y-m-d', strtotime('2017-01-01'));
+        $start  =  date('Y-m-d', strtotime($startDate));
+        $current = date('Y-m-d', strtotime($endDate));
         $qb = $this->em->createQueryBuilder();
         $qb->select('j')
             ->from('PersonalAccountBundle:Journal', 'j')
             ->where('j.teacher_lesson = :lesson_id')
-            ->andwhere('j.date BETWEEN :last AND :current')
+            ->andwhere('j.date BETWEEN :start AND :current')
             ->setParameter('lesson_id', $lesson_id)
-            ->setParameter('last', $last)
+            ->setParameter('start', $start)
             ->setParameter('current',$current);
 
         $result = $qb->getQuery()->getResult();
@@ -101,6 +103,32 @@ class InvoiceManager
         $result = $qb->getQuery()->getScalarResult();
         return $result;
     }
+    public function show_my_invoices(){
+        $qb = $this->em->createQueryBuilder('mi');
+        $qb->select('mi')
+            ->addSelect('SUM(mi.total) as sum_total')
+            ->addSelect('SUM(mi.lesson_comission) as comission_total')
+            ->from('PersonalAccountBundle:Invoice','mi')
+            ->groupBy('mi.from_date')
+            ->addGroupBy('mi.to_date')
+            ->orderBy('mi.to_date', 'DESC');
+        $result = $qb->getQuery()->getScalarResult();
+        return $result;
+    }
+    public function show_my_invoices_by_dates($startDate,$endDate){
+        $qb = $this->em->createQueryBuilder('i');
+        $qb->select('i,l.title as l_title,l.id as l_id')
+            ->from('PersonalAccountBundle:Invoice','i')
+            ->join('PersonalAccountBundle:TeacherLesson','l','with','i.teacher_lesson = l.id')
+            ->where('i.to_date = :endDate')
+            ->setParameter('endDate', $endDate);
+        if ($startDate) {
+            $qb->andwhere('i.from_date = :startDate')
+                ->setParameter('startDate',$startDate);
+        }
+        $result = $qb->getQuery()->getScalarResult();
+        return $result;
+    }
 
     public function show_invoice_details($id){
         $qb = $this->em->createQueryBuilder('s_i');
@@ -134,6 +162,36 @@ class InvoiceManager
         $result = $qb->getQuery()->getScalarResult();
         return $result;
     }
+
+    public function show_grouped_student_invoices($startDate, $endDate){
+        $sql ="select sum(teacher_lesson_total) as total, student_id, from_date, to_date, student_full_name,
+            group_concat(distinct lesson_title separator ', ') as details
+            from (
+            select *, concat(title, ' (', cast(teacher_lesson_total / rate as INTEGER), ')') as lesson_title from (
+            SELECT sum(si.total) as teacher_lesson_total, student_id, from_date, to_date, tl.title, tl.rate,
+            concat(s.name, ' ', s.surname) as student_full_name
+            from student_invoice si
+            join invoice i on si.invoice_id = i.id
+            join teacher_lesson tl on i.teacher_lesson = tl.id
+            join student s on si.student_id = s.id
+            group by si.student_id, i.from_date, i.to_date, i.teacher_lesson, tl.rate, s.name, s.surname
+            ) t
+            ) t2
+            where to_date = :endDate %s
+            group by student_id, from_date, to_date, student_full_name";
+        $conn = $this->em->getConnection();
+        if (!$startDate) {
+            $andWhere = 'and from_date is null';
+        } else {
+            $andWhere = "and from_date = " . $conn->quote($startDate) . " ";
+        }
+        $sql = sprintf($sql, $andWhere);
+        $result = $conn->prepare($sql);
+        $result->bindParam(':endDate', $endDate);
+        $result->execute();
+        return $result->fetchAll();
+    }
+
     /*
     public function get_group_unpaid_invoices($group_id){
         $qb = $this->em->createQueryBuilder();

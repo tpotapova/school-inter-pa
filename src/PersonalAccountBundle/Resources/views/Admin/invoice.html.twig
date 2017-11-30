@@ -1,6 +1,9 @@
 {% extends 'PersonalAccountBundle:Admin:base.html.twig' %}
 
 {% block body %}
+    <div class="alert alert-info">
+        <p>Дата последнего счета: {{ last_invoice_date }}</p>
+    </div>
     {% if (unedited) %}
         <div class="alert alert-danger unedited">Внимание! Не заполнен журнал посещений за:
             {% for k,value in unedited %}
@@ -12,7 +15,7 @@
     {% endif %}
     <div>
         <h2>{{ lesson_title }}</h2>
-        <h3>Счет c {{ last_invoice_date }} по {{ current_invoice_date }}</h3>
+        <h3>Счет c {{ start_invoice_date }} по {{ current_invoice_date }}</h3>
             <table class="table table-striped table-bordered">
                 <thead class="thead-inverse">
                 <tr>
