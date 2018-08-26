@@ -8,22 +8,24 @@
             <th>Начальная дата (год-месяц-день)</th>
             <th>Конечная дата (год-месяц-день)</th>
             <th>Сумма к оплате (руб.)</th>
-            <!--<th>Оплачено</th>-->
         </tr>
         </thead>
         <tbody>
-        {% for value in invoices %}
+        {% for value in invoices %}}
             <tr>
-                <td>{{ value["l_title"]}}</td>
-                <td>{{ value["i_from"] ? value["i_from"]|date('Y-m-d')}}</td>
-                <td>{{ value["i_to"]|date('Y-m-d')}}</td>
-                <td>{{ value["s_total"]}}</td>
-                <!--<td>{{ value["s_payed"] ? 'да': 'нет'}}</td>-->
+                <td>
+   			<a href="/student_invoices/{{ value["i_from_date"] ? value["i_from_date"]|date('Y-m-d'): '0'}}/{{ value["i_to_date"]|date('Y-m-d')}}">
+                        Счет за период c {{ value["i_from_date"] ? value["i_from_date"]|date('d-m-Y')}} по
+                        {{ value["i_to_date"]|date('d-m-Y')}}
+                    	</a>
+                </td>
+                <td>{{ value["i_from_date"] ? value["i_from_date"]|date('Y-m-d')}}</td>
+                <td>{{ value["i_to_date"]? value["i_to_date"]|date('Y-m-d')}}</td>
+                <td>{{ value["sum_total"]}}</td>
             </tr>
         {% endfor %}
         </tbody>
     </table>
-
 {% endblock %}
 {% block javascripts %}
     <script src ="{{ asset('js/jquery.dataTables.min.js') }}"></script>
@@ -31,8 +33,9 @@
         $(document).ready(function() {
             $('#all_invoices').DataTable({
                 ordering: true,
+		order:[2,'desc'],
                 columnDefs : [
-                    { type : 'date', targets : [1,2],orderSequence: ["desc", "asc"], }
+                    { type : 'date', targets : [1,2],orderSequence: ["asc", "desc"], }
                 ],
             });
         });

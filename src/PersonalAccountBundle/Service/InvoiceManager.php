@@ -140,6 +140,32 @@ class InvoiceManager
         $result = $qb->getQuery()->getScalarResult();
         return $result;
     }
+public function show_all_student_invoices($student_id){
+        $qb = $this->em->createQueryBuilder('i');
+        $qb->select('i')
+            ->addSelect('SUM(si.total) as sum_total')
+            ->from('PersonalAccountBundle:Invoice','i')
+            ->join ('PersonalAccountBundle:StudentInvoice','si', 'with','i.id = si.invoice_id')
+            ->where ('si.student_id = :student_id')
+            ->groupBy('i.from_date')
+            ->addGroupBy('i.to_date')
+            ->orderBy('i.to_date', 'DESC')
+            ->setParameter('student_id',$student_id);
+        $result = $qb->getQuery()->getScalarResult();
+        return $result; 
+    }
+public function show_student_presences_by_dates($student_id,$startDate,$endDate){
+        $sql = 'select j.teacher_lesson,tl.rate, tl.title, j.date  from journal j join presence p on j.id = p.journal_id join teacher_lesson tl on j.teacher_lesson = tl.id where p.presence=true and p.student = :student_id and j.teacher_lesson in (select teacher_lesson from invoice i join student_invoice si on i.id = si.invoice_id where i.from_date=:startDate and i.to_date=:endDate and si.student_id=:student_id) and j.date between :startDate and :endDate';
+        $conn = $this->em->getConnection();
+        $result = $conn->prepare($sql);
+        $result->bindParam(':endDate', $endDate);
+        $result->bindParam(':startDate', $startDate);
+        $result->bindPAram(':student_id', $student_id);
+        $result->execute();
+        return $result->fetchAll();
+    }
+
+	/*
     public function show_all_student_invoices($student_id) {
         $qb = $this->em->createQueryBuilder();
         $qb->select('i.from_date i_from, i.to_date i_to,l.title l_title, s.total s_total, s.payed s_payed')
@@ -150,7 +176,7 @@ class InvoiceManager
             ->setParameter('student_id',$student_id);
         $result = $qb->getQuery()->getScalarResult();
         return $result;
-    }
+    }*/
 
     public function show_all_teacher_invoices($teacher_id) {
         $qb = $this->em->createQueryBuilder();

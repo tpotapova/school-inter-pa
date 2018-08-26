@@ -300,6 +300,25 @@ class InvoiceController extends Controller
         $invoices = $manager->show_all_student_invoices($student->getId());
         return $this->render('PersonalAccountBundle:Student:allInvoices.html.twig', ['invoices' => $invoices,]);
     }
+	/**
+     * @Route("/student_invoices/{startDate}/{endDate}", name="studentPresences_by_dates")
+     * @Security("has_role('ROLE_USER')")
+     */
+    public function showStudentPresencesByDatesAction($startDate, $endDate,Request $request){
+        $em = $this->getDoctrine()->getManager();
+        $authUser = $this->get('security.token_storage')->getToken()->getUser();
+        $student = $em->getRepository('PersonalAccountBundle:Student')->findOneBy(['user_id' => $authUser->getId()]);
+        if (!$student or !($student->getActive())) {
+            throw $this->createNotFoundException('Студент не найден');
+        }
+        $manager = $this->container->get('app.invoice_manager');
+        $presences = $manager->show_student_presences_by_dates($student->getId(),$startDate, $endDate);
+
+        return $this->render('PersonalAccountBundle:Student:presencesByDates.html.twig',['presences' => $presences,
+            'startDate'=>$startDate,'endDate'=>$endDate]);
+
+    }
+
     /**
      * @Route("/teacher_invoices/", name="teacher_invoices")
      * @Security("has_role('ROLE_ADMIN')")
