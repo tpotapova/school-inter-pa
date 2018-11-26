@@ -60,7 +60,7 @@ class AttendanceManager
                 $j = $this->em->getRepository('PersonalAccountBundle:Journal')->find($value->getId());
                 $presence->setStudent($student);
                 $presence->setJournalId($j);
-                $presence->setPresence(false);
+                $presence->setPresence(true);
                 $presences->add($presence);
             }
         }

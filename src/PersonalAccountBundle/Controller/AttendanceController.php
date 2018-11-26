@@ -137,10 +137,8 @@ class AttendanceController extends Controller
             $end = $value->getEndTime();
             $edited = $value->getEdited();
             $counterAttendances = 0;
-            if ($edited){
-                $attendances = $em->getRepository('PersonalAccountBundle\Entity\Presence')->findBy(array('journal_id' => $value->getId(), 'presence' => true));
-                $counterAttendances = count($attendances);
-            }
+            $attendances = $em->getRepository('PersonalAccountBundle\Entity\Presence')->findBy(array('journal_id' => $value->getId(), 'presence' => true));
+            $counterAttendances = count($attendances);
             $event_data[] = [
                 "title"=>"Группа ".$value->getGroup()->getName()."<br/>Кол-во учеников: ".$counterAttendances,
                 "start" => $d->format('Y-m-d') .' ' .$start->format('H:i:s'),
