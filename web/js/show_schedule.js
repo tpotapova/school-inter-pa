@@ -13,12 +13,11 @@ $(document).ready(function() {
         eventRender: function(event, element) {
             element[0].removeAttribute('href');
             element.find('span.fc-event-title').html(element.find('span.fc-event-title').text());
-            if(event.description) {
-                element.qtip({
-                    content: event.description,
-                    position: {target: 'mouse', adjust: {mouse: false}},
-                });
-            }
+        },
+        eventClick:  function(event, jsEvent, view) {
+            $('#modalTitle').html('Домашнее задание' +"\n" + event.title);
+            $('#modalBody').html(event.homework);
+            $('#calendarModal').modal();
         },
         minTime: "07:00:00",
         maxTime: "23:00:00",

@@ -52,6 +52,11 @@ class Journal
     protected $edited;
 
     /**
+     * @ORM\Column(type="text")
+     */
+    protected $homework;
+
+    /**
      * @return mixed
      */
     public function getId()
@@ -154,6 +159,24 @@ class Journal
     {
         $this->edited = $edited;
     }
+
+
+    /**
+     * @return mixed
+     */
+    public function getHomework()
+    {
+        return $this->homework;
+    }
+
+    /**
+     * @param mixed $homework
+     */
+    public function setHomework($homework)
+    {
+        $this->homework = $homework;
+    }
+
 
 
 }

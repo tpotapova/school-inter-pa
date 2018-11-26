@@ -6,11 +6,14 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\DBAL\Query\QueryBuilder;
 use PersonalAccountBundle\Entity\Attendance;
 use PersonalAccountBundle\Entity\AttendanceCollector;
+use PersonalAccountBundle\Entity\Journal;
 use PersonalAccountBundle\Entity\Student;
 use PersonalAccountBundle\Entity\TeacherLesson;
 use PersonalAccountBundle\Form\PresenceCollectorType;
 use PersonalAccountBundle\Form\AttendanceType;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -179,6 +182,7 @@ class AttendanceController extends Controller
         $collector = new AttendanceCollector();
         $collector->setAttendanceCollection($attendances);
         $form = $this->createForm(PresenceCollectorType::class, $collector);
+        $form->get('homework')->setData($journal->getHomework());
         $form->handleRequest($request);
         $redirect_url = $this->get('router')->generate('attendances', ['lesson_id' => $lesson_id,'teacher_id'=>$teacher_id]);
         $events_load_url = $this->get('router')->generate('json_l', ['lesson_id' => $lesson_id, 'teacher_id'=>$teacher_id]);
@@ -186,6 +190,7 @@ class AttendanceController extends Controller
             if ($form->isValid()) {
                 $journal = $em->getRepository('PersonalAccountBundle\Entity\Journal')->find($journal_id);
                 $journal->setEdited(true);
+                $journal->setHomework($form->get("homework")->getData());
                 foreach ($attendances as $attendance) {
                     $attendance->setJournalId($journal);
 
@@ -197,6 +202,7 @@ class AttendanceController extends Controller
             return $this->redirect($redirect_url);
 
         }
+
         return $this->render('PersonalAccountBundle:Teacher:attendance.html.twig', [
             'form' => $form->createView(),
             'show_modal' => $show_modal,
@@ -283,6 +289,7 @@ class AttendanceController extends Controller
         $journal = $em->getRepository('PersonalAccountBundle\Entity\Journal')->find($journal_id);
         $modal_title = $journal->getTeacherLesson()->getTitle();
         $date_caption = $journal->getDate();
+        $homework = $journal->getHomework();
         $start_time = $journal->getStartTime();
         $events_load_url = $this->get('router')->generate('json2', ['group_id' => $group_id]);
 
@@ -293,6 +300,7 @@ class AttendanceController extends Controller
             'attendances' => $attendances,
             'date_caption' => $date_caption,
             'start_time' => $start_time,
+            'homework' =>$homework,
         ]);
     }
 
@@ -492,7 +500,7 @@ class AttendanceController extends Controller
             return;
         }
         $qb = $em->createQueryBuilder();
-        $qb ->select('j.date j_date, j.start_time j_start, j.end_time j_end,t.title t_title, p.presence p_presence')
+        $qb ->select('j.date j_date, j.start_time j_start, j.end_time j_end,t.title t_title, j.homework j_homework, p.presence p_presence')
             ->from('PersonalAccountBundle:Journal', 'j')
             ->join('PersonalAccountBundle:Presence', 'p','with','j.id = p.journal_id')
             ->join('PersonalAccountBundle:TeacherLesson','t','with','t.id = j.teacher_lesson')
@@ -512,6 +520,7 @@ class AttendanceController extends Controller
                 "end" => $d->format('Y-m-d') .' ' .$end->format('H:i:s'),
                 "allDay"=>false,
                 "color" => ($value['p_presence']) ? 'green' : 'blue',
+                "homework" => $value['j_homework'],
             ];
         }
         return $event_data;

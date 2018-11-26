@@ -11,6 +11,7 @@
                 </div>
                 <div class="modal-body">
                     <div class = "table-responsive">
+                        <h3>Посещения</h3>
                     {{ form_start(form) }}
                     <table class="table table-bordered table-hover table-striped table-primary list-table">
                         <thead>
@@ -23,13 +24,13 @@
 
                             {% for attendance in form.attendance_collection %}
                                 <tr>
-
-                                    <td>{{ form_widget (attendance.student) }}</td>
+                                    <td>{{ form_widget(attendance.student) }}</td>
                                     <td>{{ form_widget(attendance.presence) }}</td>
                                 </tr>
                             {% endfor %}
                         </tbody>
                     </table>
+                        {{ form_row(form.homework, {'attr': {'class': 'form-control'}}) }}
                         {{ form_widget(form.save, { 'label': 'Сохранить','attr': {'class': 'btn btn-success'} }) }}
                     {{ form_end(form) }}
                     </div>

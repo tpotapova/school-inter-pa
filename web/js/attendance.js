@@ -33,3 +33,22 @@ $(document).ready(function() {
     });
 
 });
+$("#sendHomework").click(function (e){
+    e.preventDefault();
+    console.log({
+        homework: $('#homework').val(),
+    });
+    $.ajax({
+        type: "POST",
+        data: {
+            homework: $('#homework').val(),
+        },
+        success:
+            function(){ alert('Домашнее задание сохранено успешно')
+                },
+        error:
+            function () {alert('Ошибка при сохранении задания')
+
+            },
+    });
+});

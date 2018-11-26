@@ -34,3 +34,6 @@ input[disabled] {
 .fc-event-container {
     cursor: pointer;
 }
+.modal-body {
+    white-space: pre-line;
+}

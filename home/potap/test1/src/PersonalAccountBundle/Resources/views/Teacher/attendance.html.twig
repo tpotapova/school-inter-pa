@@ -1,4 +1,4 @@
-{% extends 'PersonalAccountBundle:Admin:base.html.twig' %}
+{% extends 'PersonalAccountBundle:Teacher:base.html.twig' %}
 {% block body %}
     <div class="modal fade" tabindex="-1" role="dialog" id="pageopen">
         <div class="modal-dialog" role="document">
@@ -11,25 +11,27 @@
                 </div>
                 <div class="modal-body">
                     <div class = "table-responsive">
-                        <label for="showHomework"> Домашнee задание </label>
-                        <textarea id = "showHomework" class="form-control" rows=10 disabled>{{ homework }}</textarea>
-                        <table class="table table-bordered table-hover table-striped table-primary list-table">
-                            <thead>
-                            <tr class="info">
-                                <th>Ученик</th>
-                                <th>Присутствие</th>
-                            </tr>
-                            </thead>
-                            <tbody>
+                    {{ form_start(form) }}
+                    <table class="table table-bordered table-hover table-striped table-primary list-table">
+                        <thead>
+                        <tr class="info">
+                            <th>Ученик</th>
+                            <th>Присутствие</th>
+                        </tr>
+                        </thead>
+                        <tbody>
 
-                            {% for attendance in attendances %}
+                            {% for attendance in form.attendance_collection %}
                                 <tr>
+
                                     <td>{{ attendance.student }}</td>
-                                    <td>{{ attendance.presence ? 'да': '' }}</td>
+                                    <td>{{ attendance.presence }}</td>
                                 </tr>
                             {% endfor %}
-                            </tbody>
-                        </table>
+                        </tbody>
+                    </table>
+                        {{ form_widget(form.save, { 'label': 'Сохранить','attr': {'class': 'btn btn-success'} }) }}
+                    {{ form_end(form) }}
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -45,7 +47,7 @@
     <script>
         var defaults = {
             'showModalOnLoad': {{ show_modal }},
-            'events_load_url': '{{ events_load_url }}',
+            'events_load_url': '{{ events_load_url }}'
         };
         if (defaults.showModalOnLoad) {
             showModal();
@@ -56,7 +58,10 @@
             });
         };
 
-
+        /*
+        $('.modal-footer button,.modal-header button').click(function () {
+            window.location.href = '../attendance';
+        })*/
     </script>
-
 {% endblock %}
+

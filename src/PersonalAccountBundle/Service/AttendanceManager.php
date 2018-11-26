@@ -42,6 +42,7 @@ class AttendanceManager
                 $journal->setTeacherLesson($value->getTeacherLesson());
                 $journal->setStartTime($value->getStartTime());
                 $journal->setEndTime($value->getEndTime());
+                $journal->setHomework('');
                 $values->add($journal);
             }
         }
